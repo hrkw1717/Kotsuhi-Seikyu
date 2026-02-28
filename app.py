@@ -329,8 +329,30 @@ def send_email(to_email, subject, body, from_name="時計台警備", attachment_
 
 def login_page():
     st.title(APP_TITLE)
+    
+    # URLパラメータからIDを取得 (?id=saka 等)
+    query_params = st.query_params
+    default_id = query_params.get("id", "")
+    
+    # セレクトボックス用の選択肢（表示名とIDの対応）
+    id_options = {
+        "山口": "yama",
+        "坂下": "saka",
+        "堀川": "hori"
+    }
+    # 反転させた辞書（IDから名前を引くため）
+    id_to_name = {v: k for k, v in id_options.items()}
+    
+    # デフォルトのインデックスを決定
+    default_index = 0
+    if default_id in id_options.values():
+        default_index = list(id_options.values()).index(default_id)
+
     with st.form("login"):
-        user_id = st.text_input("ユーザーIDを入力してください")
+        # ID入力をセレクトボックスに変更
+        selected_name = st.selectbox("お名前を選んでください", options=list(id_options.keys()), index=default_index)
+        user_id = id_options[selected_name]
+        
         password = st.text_input("合言葉を入力してください", type="password")
         if st.form_submit_button("ログイン"):
             if user_id in VALID_IDS and password == SHARED_PASSWORD:
@@ -338,7 +360,7 @@ def login_page():
                 st.session_state.user_id = user_id
                 st.rerun()
             else:
-                st.error("IDまたは合言葉が正しくありません")
+                st.error("合言葉が正しくありません")
 
 def main_menu():
     # タイトルデザインの修正（改行・センター合わせ）
@@ -370,7 +392,7 @@ def main_menu():
     else:
         user_display_name = st.session_state.user_id
     
-    st.write(f"ようこそ{user_display_name}さん！お疲れです！")
+    st.write(f"おお！ {user_display_name}さんだ！　お疲れっす！")
     
     # ボタンの背景色を薄い緑に設定するCSS（Streamlitの多層コンテナ構造に対応）
     st.markdown("""
