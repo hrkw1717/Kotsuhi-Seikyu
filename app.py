@@ -372,7 +372,6 @@ def main_menu():
             font-weight: 800;
             line-height: 1.2;
             margin-bottom: 30px;
-            color: #262730;
         }
         </style>
         <div class="main-title">
