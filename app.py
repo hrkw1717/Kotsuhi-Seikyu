@@ -47,8 +47,12 @@ TEMPLATE_PATH = "テンプレート.xlsx"
 
 def load_mypage():
     if os.path.exists(MYPAGE_PATH):
-        return pd.read_excel(MYPAGE_PATH)
-    return pd.DataFrame(columns=["ID", "苗字", "氏名", "往復移動経路", "運賃", "送信", "メアド"])
+        df = pd.read_excel(MYPAGE_PATH)
+        # 「会社メアド」列がない場合は追加
+        if "会社メアド" not in df.columns:
+            df["会社メアド"] = ""
+        return df
+    return pd.DataFrame(columns=["ID", "苗字", "氏名", "往復移動経路", "運賃", "送信", "メアド", "会社メアド"])
 
 def save_mypage(df):
     df.to_excel(MYPAGE_PATH, index=False)
@@ -512,10 +516,19 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
             st.rerun()
     with col2:
         if st.button("送信", use_container_width=True, type="primary"):
+            # 【重要】会社メアドは常に「堀川（hori）」の設定を使用する
+            df_all = load_mypage()
+            hori_row = df_all[df_all["ID"] == "hori"]
+            target_company_email = COMPANY_EMAIL # デフォルト
+            if not hori_row.empty:
+                val = hori_row.iloc[0].get("会社メアド", "")
+                if val and not (isinstance(val, float) and pd.isna(val)):
+                    target_company_email = val
+                
             from_display_name = f"時計台警備（{user_info['氏名']}）"
             with st.spinner("送信中..."):
                 success = send_email(
-                    COMPANY_EMAIL, 
+                    target_company_email, 
                     f"交通費請求書_{year}年{month}月_{surname_label}",
                     email_body,
                     from_name=from_display_name,
@@ -801,6 +814,15 @@ def mypage_page():
         fare = st.number_input("運賃", value=int(user_row.iloc[0]["運賃"]))
         send_setting = st.radio("送信設定", options=["手動", "毎月1日に自動"], index=0 if user_row.iloc[0]["送信"] == "手動" else 1)
         
+        # 堀川さんの場合のみ「会社メアド（宛先）」の選択肢を表示
+        company_email_val = ""
+        if st.session_state.user_id == "hori":
+            email_options = ["sbs@sobun.net", "soumu@zendokeibi.com"]
+            current_val = user_row.iloc[0].get("会社メアド", "sbs@sobun.net")
+            if current_val not in email_options:
+                current_val = "sbs@sobun.net"
+            company_email_val = st.selectbox("会社メアド（送信先）", options=email_options, index=email_options.index(current_val))
+        
         # 保存ボタンのスタイルカスタマイズ
         st.markdown("""
             <style>
@@ -840,6 +862,8 @@ def mypage_page():
             df_mypage.at[idx, "運賃"] = fare
             df_mypage.at[idx, "送信"] = "1日に自動" if send_setting == "毎月1日に自動" else "手動"
             df_mypage.at[idx, "メアド"] = email
+            if st.session_state.user_id == "hori":
+                df_mypage.at[idx, "会社メアド"] = company_email_val
             save_mypage(df_mypage)
             st.success("マイページを更新しました")
 
