@@ -592,9 +592,20 @@ def claim_send_page():
     
     # 表示用のラベル作成
     option_labels = [d.strftime("%Y年%m月").replace("年0", "年") for d in options]
-    
+
     # --- レイアウト配置（モバイルでも横並びを維持） ---
-    st.write("対象年月を選択してください")
+    # パラメータ取得前に一旦計算する必要があるため、selectboxの直前に配置
+    # (Streamlitの再実行特性を考慮し、セレクトボックスの値を先に確定させる)
+    
+    # セレクトボックスの状態を先に取得（またはデフォルト値を使用）
+    temp_label = st.session_state.get("sel_resp_v11", option_labels[0])
+    temp_date = options[option_labels.index(temp_label)]
+    is_last_month = (temp_date == last_month_date)
+
+    msg = "対象年月を選択してください"
+    if is_last_month:
+        msg += '<div id="blue-btn-marker"></div>'
+    st.markdown(msg, unsafe_allow_html=True)
     
     # CSS：縦積みを防ぎ、比率制御（data-testidに依存しない位置ターゲット）
     st.markdown("""
@@ -669,11 +680,14 @@ def claim_send_page():
             overflow-x: auto !important;
         }
         /* 先月判定マーカーがある場合のボタン装飾 */
-        div[data-testid="stHorizontalBlock"]:has(#blue-btn-marker) button {
+        div[data-testid="stVerticalBlock"]:has(#blue-btn-marker) div[data-testid="stHorizontalBlock"] button {
             background-color: #e3f2fd !important;
             color: #1565c0 !important;
             border: 1px solid #90caf9 !important;
             font-weight: bold;
+        }
+        #blue-btn-marker {
+            display: none !important;
         }
         /* ボタンが1行になり、かつ背景色がある場合にテキストの中央揃えを強調 */
         div[data-testid="stHorizontalBlock"]:has(#blue-btn-marker) button p {
@@ -722,8 +736,6 @@ def claim_send_page():
     pdf_buffer = generate_claim_pdf(user_name, month, year, user_info["往復移動経路"], user_info["運賃"], personal_shift)
     
     with col2:
-        if is_last_month:
-            st.markdown('<div id="blue-btn-marker"></div>', unsafe_allow_html=True)
         btn_label = "会社と自分に\n送　信"
         if is_future_or_current:
             btn_label = "今月以降は\n送信不可"
