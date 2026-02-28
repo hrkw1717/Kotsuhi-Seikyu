@@ -3,6 +3,7 @@ import pandas as pd
 import openpyxl
 from openpyxl.styles import Font, Alignment
 import datetime
+from datetime import timezone, timedelta
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -409,10 +410,15 @@ def main_menu():
         st.session_state.page = "mypage"
         st.rerun()
 
+def get_jst_today():
+    """UTCの実行環境でも現在の日本時間を返す"""
+    # サーバーがUTCの場合、+9時間してJSTにする
+    return (datetime.datetime.now(timezone.utc) + timedelta(hours=9)).date()
+
 def shift_edit_page():
     st.title("シフト表を編集")
     
-    today = datetime.date.today()
+    today = get_jst_today()
     month_options = [
         (today.replace(day=1) - datetime.timedelta(days=1)).strftime("%Y-%m"),
         today.strftime("%Y-%m"),
@@ -549,7 +555,7 @@ def claim_send_page():
         <div class="user-band"><span>{user_name}さん</span></div>
     """, unsafe_allow_html=True)
     
-    today = datetime.date.today()
+    today = get_jst_today()
     first_of_this_month = today.replace(day=1)
     
     # 選択肢の生成（先月、今月、来月）
