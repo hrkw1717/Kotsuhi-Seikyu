@@ -542,7 +542,6 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
                     pass
                 st.success("送信完了しました！")
                 time.sleep(2)
-                st.session_state.page = "main"
                 st.rerun()
             else:
                 st.error("会社へのメール送信に失敗しました。")
