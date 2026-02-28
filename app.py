@@ -694,8 +694,6 @@ def claim_send_page():
     
     # 先月かどうかの判定 (CSSマーカー用)
     is_last_month = (selected_date == last_month_date)
-    if is_last_month:
-        st.markdown('<div id="blue-btn-marker"></div>', unsafe_allow_html=True)
     
     # --- 送信制限ロジック：今月・未来の分は送信不能にする ---
     today = datetime.date.today()
@@ -724,6 +722,8 @@ def claim_send_page():
     pdf_buffer = generate_claim_pdf(user_name, month, year, user_info["往復移動経路"], user_info["運賃"], personal_shift)
     
     with col2:
+        if is_last_month:
+            st.markdown('<div id="blue-btn-marker"></div>', unsafe_allow_html=True)
         btn_label = "会社と自分に\n送　信"
         if is_future_or_current:
             btn_label = "今月以降は\n送信不可"
