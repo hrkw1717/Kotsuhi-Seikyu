@@ -740,11 +740,12 @@ def mypage_page():
         # 保存ボタンのスタイルカスタマイズ
         st.markdown("""
             <style>
-            /* マイページの保存ボタンを特定して装飾 */
-            div[data-testid="stForm"] button[kind="primaryFormSubmit"] {
+            /* マイページの保存ボタンを装飾（複数セレクタで確実に適用） */
+            div[data-testid="stFormSubmitButton"] > button,
+            div[data-testid="stForm"] button[type="submit"] {
                 background-color: #ff69b4 !important; /* ピンク */
                 color: white !important;
-                padding: 12px 40px !important; /* 天地1.5倍、左右2倍程度の調整 */
+                padding: 12px 40px !important; /* 天地1.5倍、左右2倍 */
                 font-size: 1.2rem !important;
                 font-weight: bold !important;
                 border-radius: 8px !important;
@@ -755,7 +756,8 @@ def mypage_page():
                 transition: all 0.3s ease !important;
                 box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3) !important;
             }
-            div[data-testid="stForm"] button[kind="primaryFormSubmit"]:hover {
+            div[data-testid="stFormSubmitButton"] > button:hover,
+            div[data-testid="stForm"] button[type="submit"]:hover {
                 background-color: #ff1493 !important; /* 濃いピンク */
                 transform: scale(1.05) !important;
                 box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5) !important;
