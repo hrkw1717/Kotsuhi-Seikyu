@@ -743,8 +743,8 @@ def mypage_page():
             /* マイページの保存ボタンを装飾（複数セレクタで確実に適用） */
             div[data-testid="stFormSubmitButton"] > button,
             div[data-testid="stForm"] button[type="submit"] {
-                background-color: #ff69b4 !important; /* ピンク */
-                color: white !important;
+                background-color: #ffb6c1 !important; /* 薄いピンク */
+                color: #333333 !important;
                 padding: 12px 40px !important; /* 天地1.5倍、左右2倍 */
                 font-size: 1.2rem !important;
                 font-weight: bold !important;
@@ -754,13 +754,14 @@ def mypage_page():
                 margin: 20px auto !important;
                 display: block !important;
                 transition: all 0.3s ease !important;
-                box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3) !important;
+                box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4) !important;
             }
             div[data-testid="stFormSubmitButton"] > button:hover,
             div[data-testid="stForm"] button[type="submit"]:hover {
-                background-color: #ff1493 !important; /* 濃いピンク */
+                background-color: #ff69b4 !important; /* ホバー時は少し濃く */
+                color: white !important;
                 transform: scale(1.05) !important;
-                box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5) !important;
+                box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4) !important;
             }
             </style>
         """, unsafe_allow_html=True)
