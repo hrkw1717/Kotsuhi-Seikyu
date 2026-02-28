@@ -453,40 +453,6 @@ def shift_edit_page():
         st.session_state.page = "main"
         st.rerun()
 
-def mypage_page():
-    st.title("マイページ")
-    df_mypage = load_mypage()
-    user_row = df_mypage[df_mypage["ID"] == st.session_state.user_id]
-    
-    if user_row.empty:
-        # 新規登録（初期値）
-        new_row = {"ID": st.session_state.user_id, "苗字": "", "氏名": "", "往復移動経路": "", "運賃": 460, "送信": "手動", "メアド": ""}
-        df_mypage = pd.concat([df_mypage, pd.DataFrame([new_row])], ignore_index=True)
-        user_row = df_mypage[df_mypage["ID"] == st.session_state.user_id]
-
-    with st.form("mypage_form"):
-        full_name = st.text_input("氏名", value=user_row.iloc[0]["氏名"])
-        email = st.text_input("メールアドレス", value=user_row.iloc[0]["メアド"])
-        route = st.text_input("往復移動経路", value=user_row.iloc[0]["往復移動経路"])
-        fare = st.number_input("運賃", value=int(user_row.iloc[0]["運賃"]))
-        send_setting = st.radio("送信設定", options=["手動", "毎月1日に自動"], index=0 if user_row.iloc[0]["送信"] == "手動" else 1)
-        
-        if st.form_submit_button("保存"):
-            idx = df_mypage[df_mypage["ID"] == st.session_state.user_id].index[0]
-            # 内部的なファイル名用ラベルとして苗字も更新しておく（氏名の最初の単語）
-            if full_name:
-                df_mypage.at[idx, "苗字"] = full_name.split()[0]
-            df_mypage.at[idx, "氏名"] = full_name
-            df_mypage.at[idx, "往復移動経路"] = route
-            df_mypage.at[idx, "運賃"] = fare
-            df_mypage.at[idx, "送信"] = "1日に自動" if send_setting == "毎月1日に自動" else "手動"
-            df_mypage.at[idx, "メアド"] = email
-            save_mypage(df_mypage)
-            st.success("マイページを更新しました")
-
-    if st.button("戻る"):
-        st.session_state.page = "main"
-        st.rerun()
 
 @st.dialog("送信確認")
 def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, surname_label, email_body):
@@ -770,6 +736,32 @@ def mypage_page():
         route = st.text_input("往復移動経路", value=user_row.iloc[0]["往復移動経路"])
         fare = st.number_input("運賃", value=int(user_row.iloc[0]["運賃"]))
         send_setting = st.radio("送信設定", options=["手動", "毎月1日に自動"], index=0 if user_row.iloc[0]["送信"] == "手動" else 1)
+        
+        # 保存ボタンのスタイルカスタマイズ
+        st.markdown("""
+            <style>
+            /* マイページの保存ボタンを特定して装飾 */
+            div[data-testid="stForm"] button[kind="primaryFormSubmit"] {
+                background-color: #ff69b4 !important; /* ピンク */
+                color: white !important;
+                padding: 12px 40px !important; /* 天地1.5倍、左右2倍程度の調整 */
+                font-size: 1.2rem !important;
+                font-weight: bold !important;
+                border-radius: 8px !important;
+                border: none !important;
+                width: auto !important;
+                margin: 20px auto !important;
+                display: block !important;
+                transition: all 0.3s ease !important;
+                box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3) !important;
+            }
+            div[data-testid="stForm"] button[kind="primaryFormSubmit"]:hover {
+                background-color: #ff1493 !important; /* 濃いピンク */
+                transform: scale(1.05) !important;
+                box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5) !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
         
         if st.form_submit_button("保存"):
             idx = df_mypage[df_mypage["ID"] == st.session_state.user_id].index[0]
