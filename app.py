@@ -31,11 +31,11 @@ SHARED_PASSWORD = "tokei"
 try:
     COMPANY_EMAIL = st.secrets.get("COMPANY_EMAIL", "sbs@sobun.net")
     SENDER_EMAIL = st.secrets.get("SENDER_EMAIL", "horikawa1717@gmail.com")
-    EMAIL_PASSWORD = st.secrets.get("EMAIL_PASSWORD", "wswu sqgg tapt khvn")
+    EMAIL_PASSWORD = st.secrets.get("EMAIL_PASSWORD", "")
 except:
     COMPANY_EMAIL = "sbs@sobun.net"
     SENDER_EMAIL = "horikawa1717@gmail.com"
-    EMAIL_PASSWORD = "wswu sqgg tapt khvn"
+    EMAIL_PASSWORD = ""
 
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
 MYPAGE_PATH = "My-page.xlsx"
