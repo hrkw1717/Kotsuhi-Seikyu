@@ -719,11 +719,11 @@ def claim_send_page():
     is_last_month = (selected_date == last_month_date)
     
     # --- 送信制限ロジック：今月・未来の分は送信不能にする ---
-    today = datetime.date.today()
+    today_jst = get_jst_today()
     # 選択された年月の初日と、今月の初日を比較
     first_of_selected = datetime.date(year, month, 1)
-    first_of_this_month = today.replace(day=1)
-    is_future_or_current = first_of_selected >= first_of_this_month
+    first_of_current_month = today_jst.replace(day=1)
+    is_future_or_current = first_of_selected >= first_of_current_month
     
     # 名字ラベルの取得（苗字がなければ氏名の先頭を使用）
     surname_label = user_info.get("苗字", "")
