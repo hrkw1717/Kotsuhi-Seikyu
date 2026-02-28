@@ -668,6 +668,17 @@ def claim_send_page():
         [data-testid="stMarkdownContainer"] {
             overflow-x: auto !important;
         }
+        /* 先月判定マーカーがある場合のボタン装飾 */
+        div[data-testid="stHorizontalBlock"]:has(#blue-btn-marker) button {
+            background-color: #e3f2fd !important;
+            color: #1565c0 !important;
+            border: 1px solid #90caf9 !important;
+            font-weight: bold;
+        }
+        /* ボタンが1行になり、かつ背景色がある場合にテキストの中央揃えを強調 */
+        div[data-testid="stHorizontalBlock"]:has(#blue-btn-marker) button p {
+            line-height: 1.2 !important;
+        }
         </style>
     """, unsafe_allow_html=True)
     
@@ -680,6 +691,11 @@ def claim_send_page():
     # 2. データの準備
     selected_date = options[option_labels.index(selected_label)]
     year, month = selected_date.year, selected_date.month
+    
+    # 先月かどうかの判定 (CSSマーカー用)
+    is_last_month = (selected_date == last_month_date)
+    if is_last_month:
+        st.markdown('<div id="blue-btn-marker"></div>', unsafe_allow_html=True)
     
     # --- 送信制限ロジック：今月・未来の分は送信不能にする ---
     today = datetime.date.today()
