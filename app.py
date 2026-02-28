@@ -602,7 +602,16 @@ def claim_send_page():
     temp_date = options[option_labels.index(temp_label)]
     is_last_month = (temp_date == last_month_date)
 
-    msg = "対象年月を選択してください"
+    msg = """
+    <div style="font-size: 0.8rem; line-height: 1.4; margin-bottom: 10px;">
+    【使い方】<br>
+    ●シフト表と照合し間違いないことを確認し、送信ボタン。<br>
+    ●確認の赤い送信ボタンをクリック。送信完了！<br>
+    ●送信できるのは先月分のみ。毎月1～5日の間に送信して下さい。<br>
+    ●先月、今月、来月の請求内容が閲覧できます。<br>
+    ●シフト表から勤務の日付を特定し、運賃等を書き込んでいます。
+    </div>
+    """
     if is_last_month:
         msg += '<div id="blue-btn-marker"></div>'
     st.markdown(msg, unsafe_allow_html=True)
