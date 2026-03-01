@@ -767,6 +767,10 @@ def claim_send_page():
             height: 84px !important;
             min-height: 84px !important;
         }
+        /* ボタンよりも8px下に沈んでしまうデフォルトのズレを強制補正 */
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-testid="stSelectbox"] {
+            margin-top: -8px !important;
+        }
         /* セレクトボックスの入力部分を中央に */
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-baseweb="select"] > div {
             align-items: center !important;
