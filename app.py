@@ -58,8 +58,8 @@ def render_global_nav():
         header { visibility: hidden !important; }
         #nav-band-marker { height: 0; padding: 0; margin: 0; overflow: hidden; }
 
-        /* ナビ帯全体（IDセレクタでspecificityを上げて他CSSに勝つ）*/
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) {
+        /* ナビ帯背景（ナビ専用：blue-btn-markerを含まないdivのみ対象） */
+        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]):not(:has(#blue-btn-marker)) {
             background-color: #1565c0 !important;
             margin-left: -3rem !important;
             margin-right: -3rem !important;
@@ -68,9 +68,8 @@ def render_global_nav():
             padding-top: 8px !important;
             padding-bottom: 8px !important;
         }
-        /* ナビボタン：枠なし・白文字（IDセレクタでspecificity (0,1,3,3) → blue-btn(0,0,3,3)に勝つ） */
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button,
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button[kind="secondary"] {
+        /* ナビボタン：枠なし・白文字（ナビ専用：blue-btn-markerを含まないdivのみ対象） */
+        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button {
             background: transparent !important;
             border: none !important;
             color: white !important;
@@ -79,17 +78,17 @@ def render_global_nav():
             height: auto !important;
             min-height: 0 !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button p {
+        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button p {
             color: white !important;
             font-size: 1rem !important;
             white-space: nowrap !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:hover {
+        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button:hover {
             text-decoration: underline !important;
             background: transparent !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:focus,
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:active {
+        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button:focus,
+        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button:active {
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
@@ -717,7 +716,7 @@ def claim_send_page():
     </div>
     """
     if is_last_month:
-        msg += '<div class="blue-btn-marker"></div>'
+        msg += '<div id="blue-btn-marker"></div>'
     st.markdown(msg, unsafe_allow_html=True)
     
     # CSS：縦積みを防ぎ、比率制御（data-testidに依存しない位置ターゲット）
@@ -792,18 +791,18 @@ def claim_send_page():
         [data-testid="stMarkdownContainer"] {
             overflow-x: auto !important;
         }
-        /* 先月判定マーカーがある場合のボタン装飾（classセレクタでspecificityを下げてナビバーCSSに負ける） */
-        div[data-testid="stVerticalBlock"]:has(.blue-btn-marker) div[data-testid="stHorizontalBlock"] button {
+        /* 先月判定マーカーがある場合のボタン装飾（ナビバーを含まないdivのみ対象） */
+        div[data-testid="stVerticalBlock"]:has(#blue-btn-marker) > div:not(:has(#nav-band-marker)) [data-testid="stHorizontalBlock"] button {
             background-color: #e3f2fd !important;
             color: #1565c0 !important;
             border: 1px solid #90caf9 !important;
             font-weight: bold;
         }
-        .blue-btn-marker {
+        #blue-btn-marker {
             display: none !important;
         }
         /* ボタンが1行になり、かつ背景色がある場合にテキストの中央揃えを強調 */
-        div[data-testid="stHorizontalBlock"]:has(.blue-btn-marker) button p {
+        div[data-testid="stHorizontalBlock"]:has(#blue-btn-marker) button p {
             line-height: 1.2 !important;
         }
         </style>
