@@ -40,10 +40,24 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
 SPREADSHEET_URL = os.getenv("SPREADSHEET_URL", "")
 SHARED_PASSWORD = os.getenv("SHARED_PASSWORD", "tokei")
 
-# ファイルパス（backendからの絶対パス解決）
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SHIFT_PATH = os.path.join(BASE_DIR, "..", "シフト表時計台警備通年.xlsx")
-TEMPLATE_PATH = os.path.join(BASE_DIR, "..", "テンプレート.pdf")
+# ファイルパス解決関数（本番・ローカル両対応）
+def find_file(filename):
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(BASE_DIR, "..", filename), # ローカル / Git構成
+        os.path.join(BASE_DIR, filename),      # コンテナ内同階層
+        os.path.join(os.getcwd(), filename),   # 作業ディレクトリ直下
+        os.path.join("/app", filename),        # Docker標準
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            print(f"File found at: {path}")
+            return path
+    print(f"Warning: File {filename} not found in any candidate paths.")
+    return filename # 見つからない場合はフォールバック
+
+SHIFT_PATH = find_file("シフト表時計台警備通年.xlsx")
+TEMPLATE_PATH = find_file("テンプレート.pdf")
 
 # React(Next.js)からのアクセスを許可
 origins_env = os.getenv("ALLOWED_ORIGINS", "")
@@ -205,6 +219,9 @@ def generate_pdf_buffer(user_name, year, month, route, fare, shift_days):
     c.save()
     packet.seek(0)
 
+    if not os.path.exists(template_path):
+        raise FileNotFoundError(f"Template PDF not found at: {template_path}")
+    
     reader = PdfReader(template_path)
     new_pdf = PdfReader(packet)
     output = PdfWriter()
