@@ -30,13 +30,23 @@ SHARED_PASSWORD = "tokei"
 # 本番環境（Streamlit Cloud）では st.secrets から取得します
 # ローカル環境ではデフォルト値を使用します
 try:
-    COMPANY_EMAIL = st.secrets.get("COMPANY_EMAIL", "sbs@sobun.net")
+    COMPANY_EMAIL_DEFAULT = st.secrets.get("COMPANY_EMAIL", "sbs@sobun.net")
     SENDER_EMAIL = st.secrets.get("SENDER_EMAIL", "horikawa1717@gmail.com")
     EMAIL_PASSWORD = st.secrets.get("EMAIL_PASSWORD", "")
 except:
-    COMPANY_EMAIL = "sbs@sobun.net"
+    COMPANY_EMAIL_DEFAULT = "sbs@sobun.net"
     SENDER_EMAIL = "horikawa1717@gmail.com"
     EMAIL_PASSWORD = ""
+
+def get_target_company_email():
+    """堀川（hori）の設定から会社メアドを取得し、なければデフォルトを返す"""
+    df_all = load_mypage()
+    hori_row = df_all[df_all["ID"] == "hori"]
+    if not hori_row.empty:
+        val = hori_row.iloc[0].get("会社メアド", "")
+        if val and not (isinstance(val, float) and pd.isna(val)):
+            return val
+    return COMPANY_EMAIL_DEFAULT
 
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
 MYPAGE_PATH = "My-page.xlsx"
@@ -490,17 +500,17 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
     st.markdown(f"""
         <style>
         /* ダイアログ内のボタンを確実に中央揃えにする */
-        div[data-testid="stDialog"] button {{
+        div[data-testid="stDialog"] button {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             height: 60px !important; /* 高さを固定して安定させる */
             font-size: 1.1rem !important;
-        }}
-        div[data-testid="stDialog"] button p {{
+        }
+        div[data-testid="stDialog"] button p {
             margin: 0 !important;
             line-height: 1 !important;
-        }}
+        }
         </style>
         <div style='text-align: center; padding: 10px 0 20px 0;'>
             <h3 style='margin-bottom: 25px; line-height: 1.6;'>
@@ -509,21 +519,67 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
             </h3>
         </div>
     """, unsafe_allow_html=True)
-    
+
+    # 送信完了フラグを管理
+    if "send_success" not in st.session_state:
+        st.session_state.send_success = False
+
+    if st.session_state.send_success:
+        # 送信完了後の正方形フォーム表示
+        st.markdown("""
+            <style>
+            .success-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 66vw;
+                aspect-ratio: 1 / 1;
+                margin: 0 auto;
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                border: 1px solid #e0e0e0;
+                padding: 20px;
+                text-align: center;
+            }
+            .spinner-large {
+                width: 60px;
+                height: 60px;
+                border: 6px solid #f3f3f3;
+                border-top: 6px solid #4CAF50;
+                border-radius: 50%;
+                animation: spin 2s linear infinite;
+                margin-bottom: 20px;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            .success-text {
+                font-size: 1.5rem;
+                font-weight: bold;
+                color: #2e7d32;
+                margin-bottom: 25px;
+            }
+            </style>
+            <div class="success-container">
+                <div class="spinner-large"></div>
+                <div class="success-text">送信完了！</div>
+            </div>
+        """, unsafe_allow_html=True)
+        if st.button("閉じる", use_container_width=True):
+            st.session_state.send_success = False
+            st.rerun()
+        return
+
     col1, col2 = st.columns(2)
     with col1:
         if st.button("キャンセル", use_container_width=True):
             st.rerun()
     with col2:
         if st.button("送信", use_container_width=True, type="primary"):
-            # 【重要】会社メアドは常に「堀川（hori）」の設定を使用する
-            df_all = load_mypage()
-            hori_row = df_all[df_all["ID"] == "hori"]
-            target_company_email = COMPANY_EMAIL # デフォルト
-            if not hori_row.empty:
-                val = hori_row.iloc[0].get("会社メアド", "")
-                if val and not (isinstance(val, float) and pd.isna(val)):
-                    target_company_email = val
+            target_company_email = get_target_company_email()
                 
             from_display_name = f"時計台警備（{user_info['氏名']}）"
             with st.spinner("送信中..."):
@@ -535,22 +591,21 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
                     attachment_content=pdf_buffer.getvalue(),
                     attachment_filename=filename_pdf
                 )
-            if success:
-                try:
-                    self_body = (
-                        "以下の内容で、会社に交通費請求書を\n"
-                        "送りました。\n\n"
-                        "------------------------------\n"
-                        f"{email_body}"
-                    )
-                    send_email(user_info["メアド"], "【送信済】交通費請求書", self_body, from_name=from_display_name, attachment_content=pdf_buffer.getvalue(), attachment_filename=filename_pdf)
-                except:
-                    pass
-                st.success("送信完了しました！")
-                time.sleep(2)
-                st.rerun()
-            else:
-                st.error("会社へのメール送信に失敗しました。")
+                if success:
+                    try:
+                        self_body = (
+                            "以下の内容で、会社に交通費請求書を\n"
+                            "送りました。\n\n"
+                            "------------------------------\n"
+                            f"{email_body}"
+                        )
+                        send_email(user_info["メアド"], "【送信済】交通費請求書", self_body, from_name=from_display_name, attachment_content=pdf_buffer.getvalue(), attachment_filename=filename_pdf)
+                    except:
+                        pass
+                    st.session_state.send_success = True
+                    st.rerun()
+                else:
+                    st.error("会社へのメール送信に失敗しました。")
 
 def claim_send_page():
     st.markdown("""
@@ -765,6 +820,20 @@ def claim_send_page():
         if st.button(btn_label, use_container_width=True, key="btn_final_v2", disabled=is_future_or_current):
             email_body = get_email_body(surname_label, year, month)
             send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, surname_label, email_body)
+
+    # --- メッセージプレビューの表示 ---
+    target_company_email = get_target_company_email()
+    email_preview = get_email_body(surname_label, year, month)
+    st.markdown(f"""
+    <div style="font-size: 0.8rem; background-color: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; white-space: pre-wrap;">
+【メッセージ】
+高橋　様　{target_company_email}
+時計台警備の{surname_label}です。お疲れ様です。
+交通費請求用紙　お送りします。
+{year}年{month}月分です。
+以上、どうぞ、よろしくお願い致します。
+    </div>
+    """, unsafe_allow_html=True)
 
     # --- プレビューとダウンロード ---
     def pdf_to_image(pdf_bytes):
