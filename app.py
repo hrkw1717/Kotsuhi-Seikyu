@@ -49,22 +49,21 @@ def get_target_company_email():
     return COMPANY_EMAIL_DEFAULT
 
 def render_global_nav():
-    """上端に青い帯のグローバルナビゲーションを表示する（純粋HTML版）"""
-    # CSS：非表示ボタンのラッパーと青い帯の定義
+    """上端に青い帯のグローバルナビゲーションを表示する（クエリパラメータ方式）"""
+    # クエリパラメータによるページ遷移を処理
+    qp = st.query_params
+    if qp.get("go") == "claim":
+        st.query_params.clear()
+        st.session_state.page = "claim_send"
+        st.rerun()
+    elif qp.get("go") == "mypage":
+        st.query_params.clear()
+        st.session_state.page = "mypage"
+        st.rerun()
+
+    # 青い帯ナビゲーション（hrefリンクで?go=xxxに遷移、Pythonで受け取る）
     st.markdown("""
         <style>
-        /* ナビ用隠しボタンエリアを完全に非表示・ゼロサイズ化 */
-        #nav-hidden-area {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-            width: 0;
-            height: 0;
-            overflow: hidden;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        /* 青い帯ナビゲーション */
         .global-nav {
             position: fixed;
             top: 0;
@@ -80,7 +79,6 @@ def render_global_nav():
             text-decoration: none;
             font-size: 1rem;
             margin: 0 18px;
-            cursor: pointer;
         }
         .global-nav a:hover {
             text-decoration: underline;
@@ -89,68 +87,17 @@ def render_global_nav():
             color: rgba(255,255,255,0.45);
             font-size: 1rem;
             margin: 0 18px;
-            cursor: default;
         }
-        /* メインコンテンツが帯の下に隠れないようにする */
         section.main > div.block-container {
             padding-top: 4rem !important;
         }
         header { visibility: hidden !important; }
         </style>
-    """, unsafe_allow_html=True)
-
-    # 非表示エリアのHTMLを出力
-    st.markdown('<div id="nav-hidden-area">', unsafe_allow_html=True)
-    col_hidden = st.columns([1, 1])
-    with col_hidden[0]:
-        claim_clicked = st.button("XNAVCLAIMX", key="nav_claim_hidden")
-    with col_hidden[1]:
-        mypage_clicked = st.button("XNAVMYPAGEX", key="nav_mypage_hidden")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    if claim_clicked:
-        st.session_state.page = "claim_send"
-        st.rerun()
-    if mypage_clicked:
-        st.session_state.page = "mypage"
-        st.rerun()
-
-    # 青い帯のHTMLをレンダリング（JavaScriptで隠しボタンをクリック＆非表示）
-    st.markdown("""
         <div class="global-nav">
-            <a onclick="navClick('claim')">請求書送信</a>
+            <a href="?go=claim">請求書送信</a>
             <span class="nav-disabled">シフト表編集</span>
-            <a onclick="navClick('mypage')">マイページ</a>
+            <a href="?go=mypage">マイページ</a>
         </div>
-        <script>
-        function navClick(target) {
-            var btns = window.parent.document.querySelectorAll('button');
-            var keyword = target === 'claim' ? 'XNAVCLAIMX' : 'XNAVMYPAGEX';
-            for (var i = 0; i < btns.length; i++) {
-                if (btns[i].innerText.trim() === keyword) {
-                    btns[i].click();
-                    break;
-                }
-            }
-        }
-        // 隠しボタンとその親コンテナを非表示にする
-        function hideNavBtns() {
-            var btns = window.parent.document.querySelectorAll('button');
-            for (var i = 0; i < btns.length; i++) {
-                var txt = btns[i].innerText.trim();
-                if (txt === 'XNAVCLAIMX' || txt === 'XNAVMYPAGEX') {
-                    var parent = btns[i].closest('[data-testid="stHorizontalBlock"]');
-                    if (parent) {
-                        parent.style.cssText = 'position:absolute !important; top:-9999px !important; left:-9999px !important; height:0 !important; overflow:hidden !important; visibility:hidden !important; pointer-events:none !important;';
-                    }
-                }
-            }
-        }
-        // DOMロード直後と少し後に実行（Streamlitのレンダリング遅延に対応）
-        hideNavBtns();
-        setTimeout(hideNavBtns, 200);
-        setTimeout(hideNavBtns, 800);
-        </script>
     """, unsafe_allow_html=True)
 
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
