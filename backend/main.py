@@ -40,9 +40,10 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
 SPREADSHEET_URL = os.getenv("SPREADSHEET_URL", "")
 SHARED_PASSWORD = os.getenv("SHARED_PASSWORD", "tokei")
 
-# ファイルパス（backendから見た相対パス）
-SHIFT_PATH = os.path.join(os.path.dirname(__file__), "..", "シフト表時計台警備通年.xlsx")
-TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "テンプレート.pdf")
+# ファイルパス（backendからの絶対パス解決）
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SHIFT_PATH = os.path.join(BASE_DIR, "..", "シフト表時計台警備通年.xlsx")
+TEMPLATE_PATH = os.path.join(BASE_DIR, "..", "テンプレート.pdf")
 
 # React(Next.js)からのアクセスを許可
 origins_env = os.getenv("ALLOWED_ORIGINS", "")
