@@ -49,48 +49,39 @@ def get_target_company_email():
     return COMPANY_EMAIL_DEFAULT
 
 def render_global_nav():
-    """上端に青い帯のグローバルナビゲーションを表示する（HTML帯 + 正しいJS修正版）"""
-    # CSS：青い帯スタイルと隠しボタン用のマーカー
+    """上端に青い帯のグローバルナビゲーションを表示する"""
+    # CSSと、隠しボタン特定用マーカー（#nav-btn-before）を同時に出力
     st.markdown("""
         <style>
+        /* #nav-btn-beforeの直後のstHorizontalBlock（隠しボタン行）を非表示 */
+        div[data-testid="stVerticalBlock"] > div:has(#nav-btn-before) + div > [data-testid="stHorizontalBlock"] {
+            display: none !important;
+        }
         .global-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #1565c0;
-            z-index: 9999;
-            padding: 10px 0;
-            text-align: center;
+            position: fixed; top: 0; left: 0; width: 100%;
+            background-color: #1565c0; z-index: 9999;
+            padding: 10px 0; text-align: center;
         }
         .global-nav a {
-            color: white;
-            text-decoration: none;
-            font-size: 1rem;
-            margin: 0 18px;
-            cursor: pointer;
+            color: white; text-decoration: none;
+            font-size: 1rem; margin: 0 18px; cursor: pointer;
         }
         .global-nav a:hover { text-decoration: underline; }
         .global-nav .nav-disabled {
-            color: rgba(255,255,255,0.45);
-            font-size: 1rem;
-            margin: 0 18px;
+            color: rgba(255,255,255,0.45); font-size: 1rem; margin: 0 18px;
         }
         section.main > div.block-container { padding-top: 4rem !important; }
         header { visibility: hidden !important; }
-        /* 隠しボタン行を非表示（マーカークラスで特定） */
-        .nav-hidden-row { display: none !important; }
         </style>
+        <div id="nav-btn-before"></div>
     """, unsafe_allow_html=True)
 
-    # 隠しボタンをnavhidden用のdiv内に配置
-    st.markdown('<div class="nav-hidden-row">', unsafe_allow_html=True)
+    # 隠しボタン（#nav-btn-beforeの直後 → CSSで自動的に非表示になる）
     col_a, col_b = st.columns(2)
     with col_a:
         claim_clicked = st.button("NavClaim", key="nav_claim_hidden")
     with col_b:
         mypage_clicked = st.button("NavMypage", key="nav_mypage_hidden")
-    st.markdown('</div>', unsafe_allow_html=True)
 
     if claim_clicked:
         st.session_state.page = "claim_send"
@@ -99,7 +90,7 @@ def render_global_nav():
         st.session_state.page = "mypage"
         st.rerun()
 
-    # 青い帯HTML + JavaScript（documentを使う・MutationObserverで確実に実行）
+    # 青い帯HTML（JavaScriptでボタンをクリックしてページ遷移）
     st.markdown("""
         <div class="global-nav">
             <a onclick="navClick('NavClaim')">請求書送信</a>
@@ -107,33 +98,15 @@ def render_global_nav():
             <a onclick="navClick('NavMypage')">マイページ</a>
         </div>
         <script>
-        (function() {
-            function findAndHide() {
-                // Streamlit Cloudでは同一iframe内のdocumentを使う（window.parent不要）
-                var btns = document.querySelectorAll('button');
-                for (var i = 0; i < btns.length; i++) {
-                    var txt = btns[i].innerText.trim();
-                    if (txt === 'NavClaim' || txt === 'NavMypage') {
-                        var row = btns[i].closest('[data-testid="stHorizontalBlock"]');
-                        if (row) row.style.cssText = 'display:none !important;';
-                    }
+        function navClick(keyword) {
+            var btns = document.querySelectorAll('button');
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].innerText.trim() === keyword) {
+                    btns[i].click();
+                    return;
                 }
             }
-            function navClick(keyword) {
-                var btns = document.querySelectorAll('button');
-                for (var i = 0; i < btns.length; i++) {
-                    if (btns[i].innerText.trim() === keyword) {
-                        btns[i].click();
-                        return;
-                    }
-                }
-            }
-            window.navClick = navClick;
-            // DOMの変化を監視して隠しボタンが現れたらすぐ非表示
-            var observer = new MutationObserver(findAndHide);
-            observer.observe(document.body, { childList: true, subtree: true });
-            findAndHide();
-        })();
+        }
         </script>
     """, unsafe_allow_html=True)
 
