@@ -176,10 +176,10 @@ def generate_pdf_buffer(user_name, year, month, route, fare, shift_days):
     c = canvas.Canvas(packet, pagesize=A4)
     
     # 既存のテンプレートを読み込むパス
-    template_path = os.path.join(os.path.dirname(__file__), "..", "テンプレート.pdf")
+    template_path = TEMPLATE_PATH
     if not os.path.exists(template_path):
         c.setFont('HeiseiKakuGo-W5', 12)
-        c.drawString(100, 700, "Template PDF not found. Please check paths.")
+        c.drawString(100, 700, f"Template PDF not found at: {template_path}")
         c.save()
         packet.seek(0)
         return packet
