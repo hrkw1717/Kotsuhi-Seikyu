@@ -743,18 +743,18 @@ def claim_send_page():
     st.markdown("""
         <style>
         /* 横並びを常時維持 */
-        [data-testid="stHorizontalBlock"] {
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) {
             flex-direction: row !important;
             flex-wrap: nowrap !important;
             gap: 8px !important;
         }
         /* 55:45 比率でカラムを分割 */
-        [data-testid="stHorizontalBlock"] > div:nth-child(1) {
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) > div:nth-child(1) {
             flex: 55 1 0% !important;
             min-width: 0 !important;
             width: auto !important;
         }
-        [data-testid="stHorizontalBlock"] > div:nth-child(2) {
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) > div:nth-child(2) {
             flex: 45 1 0% !important;
             min-width: 0 !important;
             width: auto !important;
@@ -772,19 +772,19 @@ def claim_send_page():
             display: flex !important;
             align-items: center !important;
         }
-        [data-testid="stHorizontalBlock"] button {
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) button {
             height: 80px !important;
             min-height: 80px !important;
         }
         /* ボタンテキスト内の改行（\n）を有効化 */
-        [data-testid="stHorizontalBlock"] button p,
-        [data-testid="stHorizontalBlock"] button > div {
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) button p,
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) button > div {
             white-space: pre-line !important;
             text-align: center !important;
             line-height: 1.4 !important;
         }
         /* 無効化時の「かすみ表示」設定 */
-        [data-testid="stHorizontalBlock"] button:disabled {
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) button:disabled {
             opacity: 0.6 !important; /* 少し濃くして読みやすく */
             background-color: #f0f0f0 !important;
             color: #444 !important; /* 文字色を濃いグレーに変更 */
@@ -832,6 +832,7 @@ def claim_send_page():
     col1, col2 = st.columns([11, 9])
     
     with col1:
+        st.markdown('<div class="send-row-marker" style="display:none;"></div>', unsafe_allow_html=True)
         if is_last_month:
             st.markdown('<div class="blue-btn-marker"></div>', unsafe_allow_html=True)
         selected_label = st.selectbox("年月", options=option_labels, index=0, label_visibility="collapsed", key="sel_resp_v11")
