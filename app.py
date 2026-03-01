@@ -78,8 +78,6 @@ def render_global_nav():
             outline: none !important;
             height: auto !important;
             min-height: 0 !important;
-            overflow: visible !important;
-            padding: 4px 8px !important;
         }
         div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button p {
             color: white !important;
