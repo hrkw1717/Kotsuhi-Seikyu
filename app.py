@@ -828,6 +828,21 @@ def claim_send_page():
         div[data-testid="stHorizontalBlock"]:has(#blue-btn-marker) button p {
             line-height: 1.2 !important;
         }
+        /* ナビバーのボタンはページ固有のスタイルを無効化 */
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button {
+            background: transparent !important;
+            border: none !important;
+            color: white !important;
+            box-shadow: none !important;
+            outline: none !important;
+            height: auto !important;
+            min-height: 0 !important;
+        }
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button p {
+            color: white !important;
+            font-size: 1rem !important;
+            white-space: nowrap !important;
+        }
         </style>
     """, unsafe_allow_html=True)
     
