@@ -19,14 +19,6 @@ export default function LoginPage() {
       passwordRef.current?.focus();
     }
   };
-  const passwordRef = useRef<HTMLInputElement>(null);
-
-  const handleIdKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      passwordRef.current?.focus();
-    }
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
