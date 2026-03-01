@@ -747,6 +747,7 @@ def claim_send_page():
             flex-direction: row !important;
             flex-wrap: nowrap !important;
             gap: 8px !important;
+            align-items: center !important; /* 縦の配置を確実にあわせる */
         }
         /* 55:45 比率でカラムを分割 */
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) > div:nth-child(1) {
@@ -759,22 +760,23 @@ def claim_send_page():
             min-width: 0 !important;
             width: auto !important;
         }
-        /* 高さを2倍（約80px）に設定 */
-        [data-testid="stSelectbox"] > div:first-child {
-            height: 80px !important;
-            min-height: 80px !important;
-            display: flex !important;
-            align-items: center !important;
+        /* 高さを完全に一致させる（84px固定） */
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-testid="stSelectbox"] > div:first-child,
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-baseweb="select"],
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-baseweb="select"] > div {
+            height: 84px !important;
+            min-height: 84px !important;
         }
-        [data-testid="stSelectbox"] > div > div {
-            height: 80px !important;
-            min-height: 80px !important;
-            display: flex !important;
+        /* セレクトボックスの入力部分を中央に */
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-baseweb="select"] > div {
             align-items: center !important;
+            border-radius: 8px !important; /* ボタンと角丸を揃える */
         }
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) button {
-            height: 80px !important;
-            min-height: 80px !important;
+            height: 84px !important;
+            min-height: 84px !important;
+            border-radius: 8px !important;
+            margin: 0 !important;
         }
         /* ボタンテキスト内の改行（\n）を有効化 */
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) button p,
@@ -825,6 +827,13 @@ def claim_send_page():
         div[data-testid="stHorizontalBlock"]:has(.blue-btn-marker) button p {
             line-height: 1.2 !important;
         }
+        /* 高さを狂わせる原因となるマーカー要素のコンテナ余白を完全に消滅させる */
+        div[data-testid="element-container"]:has(.send-row-marker) {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+        }
         </style>
     """, unsafe_allow_html=True)
     
@@ -832,9 +841,12 @@ def claim_send_page():
     col1, col2 = st.columns([11, 9])
     
     with col1:
-        st.markdown('<div class="send-row-marker" style="display:none;"></div>', unsafe_allow_html=True)
+        # マーカー要素を1つにまとめて出力し、CSSでコンテナごと隠す
+        marker_html = '<div class="send-row-marker"></div>'
         if is_last_month:
-            st.markdown('<div class="blue-btn-marker"></div>', unsafe_allow_html=True)
+            marker_html += '<div class="blue-btn-marker"></div>'
+        st.markdown(marker_html, unsafe_allow_html=True)
+        
         selected_label = st.selectbox("年月", options=option_labels, index=0, label_visibility="collapsed", key="sel_resp_v11")
     
     # 2. データの準備
