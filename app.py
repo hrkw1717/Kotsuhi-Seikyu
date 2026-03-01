@@ -58,8 +58,25 @@ def render_global_nav():
         header { visibility: hidden !important; }
         #nav-band-marker { height: 0; padding: 0; margin: 0; overflow: hidden; }
 
-        /* CSSセレクタによるナビ背景の指定はスコープ漏れのリスクが高いため廃止し、
-           絶対配置の背景Divを使う方式へ変更 */
+        /* 擬似要素(::before)を使ってナビ行の背景に全幅の青帯を描画する（最も安全な方式） */
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) {
+            position: relative;
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target)::before {
+            content: "";
+            position: absolute;
+            top: 0; bottom: 0;
+            left: -50vw; right: -50vw; /* 画面幅の半分ぶん左右に拡張して全幅ブルーにする */
+            background-color: #1565c0;
+            z-index: 0;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) > div {
+            position: relative;
+            z-index: 1; /* コンテンツ類（ボタンなど）を青背景の手前に持ってくる */
+        }
+
         /* ナビボタン：枠なし・白文字 */
         div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) button,
         div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) button[kind="secondary"] {
@@ -93,22 +110,10 @@ def render_global_nav():
         </style>
     """, unsafe_allow_html=True)
 
-    # st.containerでナビバーをラップ（DOM構造内でアイソレーションされる）
+    # st.containerでナビバーをラップ
     with st.container():
-        # マーカーと、ナビコンテナ全体を覆う絶対配置の背景（濃い青帯）を直接注入
-        st.markdown('''
-            <div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>
-            <div style="
-                position: absolute;
-                top: -8px; left: -3rem; right: -3rem; bottom: -8px;
-                background-color: #1565c0;
-                z-index: 0;
-                pointer-events: none;
-            "></div>
-        ''', unsafe_allow_html=True)
-        
-        # コンテンツ（ボタン等）のz-indexを上げて背景より前に出す
-        st.markdown('<style>div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) { position: relative; z-index: 1; padding: 8px 3rem; }</style>', unsafe_allow_html=True)
+        # マーカーのみ出力（背景はCSSの ::before で描画）
+        st.markdown('<div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>', unsafe_allow_html=True)
         col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 3, 1])
         with col2:
             st.markdown('<div class="nav-btn-target"></div>', unsafe_allow_html=True)
