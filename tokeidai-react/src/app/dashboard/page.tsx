@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
     Send,
     FileText,
@@ -120,7 +121,9 @@ export default function Dashboard() {
                     <div className="flex items-center gap-6">
                         <nav className="hidden md:flex gap-1">
                             <button className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg">請求書送信</button>
-                            <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors">マイページ</button>
+                            <Link href="/mypage">
+                                <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors">マイページ</button>
+                            </Link>
                         </nav>
                         <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
                         <div className="flex items-center gap-3">

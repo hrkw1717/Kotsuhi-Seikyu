@@ -267,7 +267,9 @@ async def login(req: LoginRequest):
             "name": user_row.iloc[0]["氏名"],
             "id": req.userid,
             "email": user_row.iloc[0]["メアド"],
-            "company_email": user_row.iloc[0].get("会社メアド", COMPANY_EMAIL_DEFAULT)
+            "company_email": user_row.iloc[0].get("会社メアド", COMPANY_EMAIL_DEFAULT),
+            "route": user_row.iloc[0].get("往復移動経路", "未設定"),
+            "fare": int(user_row.iloc[0].get("運賃", 0))
         }
         return {"status": "success", "user": user_info}
     
