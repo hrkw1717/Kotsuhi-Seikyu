@@ -25,6 +25,20 @@ export default function Dashboard() {
     const [previewData, setPreviewData] = useState<any>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [status, setStatus] = useState("idle");
+    const [userName, setUserName] = useState("ゲスト");
+
+    React.useEffect(() => {
+        const userJson = localStorage.getItem("user");
+        if (userJson) {
+            const user = JSON.parse(userJson);
+            setUserName(user.name || "ユーザー");
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        window.location.href = "/";
+    };
 
     const handleLoadData = async () => {
         setIsLoading(true);
@@ -112,10 +126,14 @@ export default function Dashboard() {
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">
                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Authenticated</p>
-                                <p className="text-sm font-bold text-slate-700 leading-none">堀川 勉 様</p>
+                                <p className="text-sm font-bold text-slate-700 leading-none">{userName} 様</p>
                             </div>
-                            <button className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center hover:bg-slate-200 transition-colors">
-                                <User size={20} className="text-slate-600" />
+                            <button
+                                onClick={handleLogout}
+                                title="ログアウト"
+                                className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-colors"
+                            >
+                                <LogOut size={18} />
                             </button>
                         </div>
                     </div>
