@@ -69,8 +69,8 @@ def render_global_nav():
             padding-top: 8px !important;
             padding-bottom: 8px !important;
         }
-        /* ナビボタン：枠なし・白文字 */
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button {
+        /* ナビボタン：枠なし・白文字（specificityを上げて他ページCSSに勝つ） */
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button {
             background: transparent !important;
             border: none !important;
             color: white !important;
@@ -79,17 +79,17 @@ def render_global_nav():
             height: auto !important;
             min-height: 0 !important;
         }
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button p {
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button p {
             color: white !important;
             font-size: 1rem !important;
             white-space: nowrap !important;
         }
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button:hover {
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button:hover {
             text-decoration: underline !important;
             background: transparent !important;
         }
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button:focus,
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button:active {
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button:focus,
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button:active {
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
@@ -114,30 +114,6 @@ def render_global_nav():
         if st.button("マイページ", key="nav_mypage", use_container_width=True):
             st.session_state.page = "mypage"
             st.rerun()
-
-    # ナビバーCSSをボタン配置後に再適用（ページ固有CSSより後にロードさせカスケードで勝つ）
-    st.markdown("""
-        <style>
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button {
-            background: transparent !important;
-            border: none !important;
-            color: white !important;
-            box-shadow: none !important;
-            outline: none !important;
-            height: auto !important;
-            min-height: 0 !important;
-        }
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button p {
-            color: white !important;
-            font-size: 1rem !important;
-            white-space: nowrap !important;
-        }
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button:hover {
-            text-decoration: underline !important;
-            background: transparent !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
 
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
 MYPAGE_PATH = "My-page.xlsx"
