@@ -44,9 +44,9 @@ SHARED_PASSWORD = os.getenv("SHARED_PASSWORD", "tokei")
 def find_file(filename):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     candidates = [
-        os.path.join(BASE_DIR, "..", filename), # ローカル / Git構成
-        os.path.join(BASE_DIR, filename),      # コンテナ内同階層
-        os.path.join(os.getcwd(), filename),   # 作業ディレクトリ直下
+        os.path.join(BASE_DIR, filename),      # 同階層 (デプロイ後 / 集約後)
+        os.path.join(BASE_DIR, "..", filename), # 親階層 (開発時)
+        os.path.join(os.getcwd(), filename),   # 作業ディレクトリ
         os.path.join("/app", filename),        # Docker標準
     ]
     for path in candidates:
@@ -54,7 +54,7 @@ def find_file(filename):
             print(f"File found at: {path}")
             return path
     print(f"Warning: File {filename} not found in any candidate paths.")
-    return filename # 見つからない場合はフォールバック
+    return os.path.join(BASE_DIR, filename) # デフォルトは同階層
 
 SHIFT_PATH = find_file("シフト表時計台警備通年.xlsx")
 TEMPLATE_PATH = find_file("テンプレート.pdf")
