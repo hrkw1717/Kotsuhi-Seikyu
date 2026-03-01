@@ -58,16 +58,8 @@ def render_global_nav():
         header { visibility: hidden !important; }
         #nav-band-marker { height: 0; padding: 0; margin: 0; overflow: hidden; }
 
-        /* ナビ帯全体（マーカー直下の行ブロックを青くする）*/
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) {
-            background-color: #1565c0 !important;
-            margin-left: -3rem !important;
-            margin-right: -3rem !important;
-            padding-left: 3rem !important;
-            padding-right: 3rem !important;
-            padding-top: 8px !important;
-            padding-bottom: 8px !important;
-        }
+        /* CSSセレクタによるナビ背景の指定はスコープ漏れのリスクが高いため廃止し、
+           絶対配置の背景Divを使う方式へ変更 */
         /* ナビボタン：枠なし・白文字 */
         div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button,
         div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button[kind="secondary"] {
@@ -98,10 +90,22 @@ def render_global_nav():
         </style>
     """, unsafe_allow_html=True)
 
-    # st.columns(1)でナビバー全体を完全に隔離ラップ（RootブロックへのCSS誤爆防止）
-    nav_container = st.columns(1)[0]
-    with nav_container:
-        st.markdown('<div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>', unsafe_allow_html=True)
+    # st.containerでナビバーをラップ（DOM構造内でアイソレーションされる）
+    with st.container():
+        # マーカーと、ナビコンテナ全体を覆う絶対配置の背景（濃い青帯）を直接注入
+        st.markdown('''
+            <div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>
+            <div style="
+                position: absolute;
+                top: -8px; left: -3rem; right: -3rem; bottom: -8px;
+                background-color: #1565c0;
+                z-index: 0;
+                pointer-events: none;
+            "></div>
+        ''', unsafe_allow_html=True)
+        
+        # コンテンツ（ボタン等）のz-indexを上げて背景より前に出す
+        st.markdown('<style>div[data-testid="stHorizontalBlock"]:has(#nav_claim) { position: relative; z-index: 1; padding: 8px 3rem; }</style>', unsafe_allow_html=True)
         col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 3, 1])
         with col2:
             if st.button("請求書送信", key="nav_claim", use_container_width=True):
