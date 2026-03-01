@@ -1033,18 +1033,27 @@ def mypage_page():
     if st.session_state.user_id == "hori":
         st.markdown("---")
         st.subheader("⚙️ 管理者専用機能")
-        st.info("現在クラウド上で稼働している最新のユーザーデータ（My-page.xlsx）をダウンロードできます。")
+        st.info("現在クラウド上で稼働している最新のユーザーデータ（Googleスプレッドシート）をExcel形式でダウンロードできます。")
         try:
-            with open(MYPAGE_PATH, "rb") as file:
-                btn = st.download_button(
-                    label="最新のユーザーデータ (My-page.xlsx) をダウンロード",
-                    data=file,
-                    file_name="最新_My-page.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
-                )
+            # 最新データを取得
+            df_latest = load_mypage()
+            
+            # メモリ上でExcelファイルを作成
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df_latest.to_excel(writer, index=False, sheet_name='My-page')
+            excel_data = output.getvalue()
+
+            st.download_button(
+                label="最新のユーザーデータ (My-page) をダウンロード",
+                data=excel_data,
+                file_name=f"最新_My-page_{datetime.datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
         except Exception as e:
-            st.error("データの読み込みに失敗しました。まだファイルが存在しない可能性があります。")
+            st.error(f"データの取得または変換に失敗しました: {e}")
+
 
 
 # --- メインロジック ---
