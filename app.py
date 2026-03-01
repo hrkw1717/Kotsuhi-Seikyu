@@ -76,6 +76,8 @@ def render_global_nav():
             color: white !important;
             box-shadow: none !important;
             outline: none !important;
+            height: auto !important;
+            min-height: 0 !important;
         }
         div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button p {
             color: white !important;
@@ -749,19 +751,19 @@ def claim_send_page():
             display: flex !important;
             align-items: center !important;
         }
-        [data-testid="stHorizontalBlock"] button {
+        [data-testid="stHorizontalBlock"]:not(:has(button[kind="secondary"][data-testid])):not(.nav-band-row) button:not([key^="nav_"]) {
             height: 80px !important;
             min-height: 80px !important;
         }
         /* ボタンテキスト内の改行（\n）を有効化 */
-        [data-testid="stHorizontalBlock"] button p,
-        [data-testid="stHorizontalBlock"] button > div {
+        [data-testid="stHorizontalBlock"]:not(:has(button[kind="secondary"][data-testid])):not(.nav-band-row) button:not([key^="nav_"]) p,
+        [data-testid="stHorizontalBlock"]:not(:has(button[kind="secondary"][data-testid])):not(.nav-band-row) button:not([key^="nav_"]) > div {
             white-space: pre-line !important;
             text-align: center !important;
             line-height: 1.4 !important;
         }
         /* 無効化時の「かすみ表示」設定 */
-        [data-testid="stHorizontalBlock"] button:disabled {
+        [data-testid="stHorizontalBlock"]:not(:has(button[kind="secondary"][data-testid])):not(.nav-band-row) button:not([key^="nav_"]):disabled {
             opacity: 0.6 !important; /* 少し濃くして読みやすく */
             background-color: #f0f0f0 !important;
             color: #444 !important; /* 文字色を濃いグレーに変更 */
