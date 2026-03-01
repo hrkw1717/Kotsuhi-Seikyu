@@ -51,80 +51,89 @@ def get_target_company_email():
     return COMPANY_EMAIL_DEFAULT
 
 def render_global_nav():
-    """上端に青い帯のグローバルナビゲーションを表示する"""
+    """上端に青い帯のグローバルナビゲーションを表示する（指示通りの形状）"""
+    # 帯のスタイル定義
     st.markdown("""
         <style>
-        .nav-container {
+        .nav-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             background-color: #1565c0;
-            padding: 10px 0;
-            margin: -6rem -5rem 2rem -5rem; /* Streamlitのデフォルトパディングを打ち消す */
+            z-index: 1000;
+            padding: 8px 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 999;
         }
-        .nav-link {
+        .nav-content {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        /* 埋め込みボタンをテキストリンクに見せるためのスタイル */
+        div.stButton > button.nav-btn {
+            background: none !important;
+            border: none !important;
             color: white !important;
-            text-decoration: none !important;
-            font-weight: normal;
-            cursor: pointer;
-            border: none;
-            background: none;
-            padding: 0;
-            font-size: 1rem;
+            padding: 0 !important;
+            font-size: 1rem !important;
+            font-weight: normal !important;
+            box-shadow: none !important;
+            height: auto !important;
         }
-        .nav-link:hover {
+        div.stButton > button.nav-btn:hover {
             text-decoration: underline !important;
         }
-        .nav-disabled {
-            color: rgba(255, 255, 255, 0.5) !important;
-            cursor: default;
+        .nav-text-disabled {
+            color: rgba(255, 255, 255, 0.5);
             font-size: 1rem;
+            cursor: default;
+        }
+        /* コンテンツがナビバーに隠れないようにパディングを追加 */
+        .main .block-container {
+            padding-top: 5rem !important;
         }
         </style>
     """, unsafe_allow_html=True)
-    
-    # セッション状態を更新するための非表示ボタン（ハック的だがStreamlitでナビゲーションを実現する標準的手法の一つ）
-    cols = st.columns([1, 1.2, 1, 1.2, 1]) # センター寄せのためのカラム調整
-    with cols[1]:
-        if st.button("請求書送信", key="nav_claim", use_container_width=True):
-            st.session_state.page = "claim_send"
-            st.rerun()
-    with cols[2]:
-        st.markdown('<div style="text-align:center; color:rgba(255,255,255,0.5); padding-top:10px;">シフト表編集</div>', unsafe_allow_html=True)
-    with cols[3]:
-        if st.button("マイページ", key="nav_mypage", use_container_width=True):
-            st.session_state.page = "mypage"
-            st.rerun()
 
-    # 指示通りの「青い帯の中にセンター揃え」をHTML/CSSで実現
-    st.markdown("""
-        <div class="nav-container">
-            <div style="display: flex; gap: 20px; align-items: center;">
-                <span id="nav-item-claim" style="cursor: pointer;">請求書送信</span>
-                <span class="nav-disabled">シフト表編集</span>
-                <span id="nav-item-mypage" style="cursor: pointer;">マイページ</span>
-            </div>
-        </div>
-        <script>
-            // Streamlitのボタンクリックをシミュレートするためのスクリプト
-            const claimBtn = window.parent.document.querySelectorAll('button p').find(el => el.innerText === '請求書送信');
-            const mypageBtn = window.parent.document.querySelectorAll('button p').find(el => el.innerText === 'マイページ');
-            
-            document.getElementById('nav-item-claim').onclick = () => claimBtn.click();
-            document.getElementById('nav-item-mypage').onclick = () => mypageBtn.click();
-        </script>
-    """, unsafe_allow_html=True)
-    # Streamlitの標準ボタンを隠すための調整
+    # 実際の帯とナビゲーション項目のレンダリング
+    with st.container():
+        # CSSでfixed配置するため、ラップ用のdivを置く
+        st.markdown('<div class="nav-wrapper"><div class="nav-content">', unsafe_allow_html=True)
+        
+        col1, col2, col3, col4, col5 = st.columns([2, 1, 1, 1, 2])
+        with col2:
+            if st.button("請求書送信", key="nav_claim_top", help=None, use_container_width=False, type="secondary"):
+                st.session_state.page = "claim_send"
+                st.rerun()
+        with col3:
+            st.markdown('<div style="color:rgba(255,255,255,0.5); text-align:center; padding: 5px 0;">シフト表編集</div>', unsafe_allow_html=True)
+        with col4:
+            if st.button("マイページ", key="nav_mypage_top", help=None, use_container_width=False, type="secondary"):
+                st.session_state.page = "mypage"
+                st.rerun()
+        
+        st.markdown('</div></div>', unsafe_allow_html=True)
+
+    # ボタンをリンク化するためのCSS適用（各ボタンに共通のクラスなどは設定できないため、独自のセレクタで指定）
     st.markdown("""
         <style>
-        div[data-testid="stHorizontalBlock"]:has(button[key^="nav_"]) {
-            display: none !important;
+        div.stButton > button[key^="nav_claim_top"], 
+        div.stButton > button[key^="nav_mypage_top"] {
+            background: none !important;
+            border: none !important;
+            color: white !important;
+            padding: 5px 0 !important;
+            font-size: 1rem !important;
+            font-weight: normal !important;
+            box-shadow: none !important;
         }
+        /* ナビゲーションをページ上端に固定するための追加調整 */
+        header {visibility: hidden;}
+        .stDeployButton {display:none;}
+        [data-testid="stHeader"] {background: rgba(0,0,0,0); border-bottom: none;}
         </style>
     """, unsafe_allow_html=True)
 
@@ -488,43 +497,7 @@ def main_menu():
     
     st.write(f"おお！ {user_display_name}さんだ！　お疲れっす！")
     
-    # ボタンの背景色を薄い緑に設定するCSS（Streamlitの多層コンテナ構造に対応）
-    st.markdown("""
-        <style>
-        /* green-btnを含むコンテナの直後にあるボタンコンテナ内のボタンをターゲットにする */
-        [data-testid="stVerticalBlock"] > div:has(#green-btn) + div button {
-            background-color: #e8f5e9 !important;
-            color: #2e7d32 !important;
-            border: 2px solid #4CAF50 !important;
-            font-weight: bold !important;
-            height: 60px !important;
-        }
-        [data-testid="stVerticalBlock"] > div:has(#green-btn) + div button:hover {
-            background-color: #c8e6c9 !important;
-            border-color: #2e7d32 !important;
-        }
-        /* 無効時の「かすみ表示」設定 */
-        button:disabled {
-            opacity: 0.5 !important;
-            color: #777 !important;
-            cursor: not-allowed !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # ボタンの並び替え（表示・送信を一番上に、かつハイライト適用）
-    st.markdown('<div id="green-btn"></div>', unsafe_allow_html=True)
-    if st.button("交通費請求書を表示・送信", use_container_width=True, key="btn_claim_top"):
-        st.session_state.page = "claim_send"
-        st.rerun()
-        
-    if st.button("シフト表を変更（工事中）", use_container_width=True, key="btn_shift_mid", disabled=True):
-        st.session_state.page = "shift_edit"
-        st.rerun()
-        
-    if st.button("マイページ", use_container_width=True, key="btn_mypage_bottom"):
-        st.session_state.page = "mypage"
-        st.rerun()
+    # 以前の大きなボタンは削除
 
 def get_jst_today():
     """UTCの実行環境でも現在の日本時間を返す"""
