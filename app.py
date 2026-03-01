@@ -78,6 +78,8 @@ def render_global_nav():
             outline: none !important;
             height: auto !important;
             min-height: 0 !important;
+            overflow: visible !important;
+            padding: 4px 8px !important;
         }
         div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button p {
             color: white !important;
@@ -101,7 +103,7 @@ def render_global_nav():
     # st.containerでナビバー全体をラップ
     with st.container():
         st.markdown('<div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>', unsafe_allow_html=True)
-        col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 2])
+        col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 3, 1])
         with col2:
             if st.button("請求書送信", key="nav_claim", use_container_width=True):
                 st.session_state.page = "claim_send"
