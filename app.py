@@ -58,8 +58,8 @@ def render_global_nav():
         header { visibility: hidden !important; }
         #nav-band-marker { height: 0; padding: 0; margin: 0; overflow: hidden; }
 
-        /* ナビ帯背景（ナビ専用：blue-btn-markerを含まないdivのみ対象） */
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]):not(:has(#blue-btn-marker)) {
+        /* ナビ帯全体（マーカーを含む行自体を青くする）*/
+        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) {
             background-color: #1565c0 !important;
             margin-left: -3rem !important;
             margin-right: -3rem !important;
@@ -68,8 +68,9 @@ def render_global_nav():
             padding-top: 8px !important;
             padding-bottom: 8px !important;
         }
-        /* ナビボタン：枠なし・白文字（ナビ専用：blue-btn-markerを含まないdivのみ対象） */
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button {
+        /* ナビボタン：枠なし・白文字 */
+        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button,
+        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button[kind="secondary"] {
             background: transparent !important;
             border: none !important;
             color: white !important;
@@ -78,17 +79,17 @@ def render_global_nav():
             height: auto !important;
             min-height: 0 !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button p {
+        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button p {
             color: white !important;
             font-size: 1rem !important;
             white-space: nowrap !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button:hover {
+        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button:hover {
             text-decoration: underline !important;
             background: transparent !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button:focus,
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:not(:has(#blue-btn-marker)):has([data-testid="stHorizontalBlock"]) button:active {
+        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button:focus,
+        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button:active {
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
@@ -99,8 +100,9 @@ def render_global_nav():
 
     # st.containerでナビバー全体をラップ
     with st.container():
-        st.markdown('<div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>', unsafe_allow_html=True)
         col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 3, 1])
+        with col1:
+            st.markdown('<div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>', unsafe_allow_html=True)
         with col2:
             if st.button("請求書送信", key="nav_claim", use_container_width=True):
                 st.session_state.page = "claim_send"
@@ -791,8 +793,8 @@ def claim_send_page():
         [data-testid="stMarkdownContainer"] {
             overflow-x: auto !important;
         }
-        /* 先月判定マーカーがある場合のボタン装飾（ナビバーを含まないdivのみ対象） */
-        div[data-testid="stVerticalBlock"]:has(#blue-btn-marker) > div:not(:has(#nav-band-marker)) [data-testid="stHorizontalBlock"] button {
+        /* 先月判定マーカーがある場合のボタン装飾 */
+        div[data-testid="stVerticalBlock"]:has(#blue-btn-marker) div[data-testid="stHorizontalBlock"] button {
             background-color: #e3f2fd !important;
             color: #1565c0 !important;
             border: 1px solid #90caf9 !important;
