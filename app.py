@@ -48,6 +48,86 @@ def get_target_company_email():
             return val
     return COMPANY_EMAIL_DEFAULT
 
+    return COMPANY_EMAIL_DEFAULT
+
+def render_global_nav():
+    """上端に青い帯のグローバルナビゲーションを表示する"""
+    st.markdown("""
+        <style>
+        .nav-container {
+            background-color: #1565c0;
+            padding: 10px 0;
+            margin: -6rem -5rem 2rem -5rem; /* Streamlitのデフォルトパディングを打ち消す */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        .nav-link {
+            color: white !important;
+            text-decoration: none !important;
+            font-weight: normal;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            font-size: 1rem;
+        }
+        .nav-link:hover {
+            text-decoration: underline !important;
+        }
+        .nav-disabled {
+            color: rgba(255, 255, 255, 0.5) !important;
+            cursor: default;
+            font-size: 1rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # セッション状態を更新するための非表示ボタン（ハック的だがStreamlitでナビゲーションを実現する標準的手法の一つ）
+    cols = st.columns([1, 1.2, 1, 1.2, 1]) # センター寄せのためのカラム調整
+    with cols[1]:
+        if st.button("請求書送信", key="nav_claim", use_container_width=True):
+            st.session_state.page = "claim_send"
+            st.rerun()
+    with cols[2]:
+        st.markdown('<div style="text-align:center; color:rgba(255,255,255,0.5); padding-top:10px;">シフト表編集</div>', unsafe_allow_html=True)
+    with cols[3]:
+        if st.button("マイページ", key="nav_mypage", use_container_width=True):
+            st.session_state.page = "mypage"
+            st.rerun()
+
+    # 指示通りの「青い帯の中にセンター揃え」をHTML/CSSで実現
+    st.markdown("""
+        <div class="nav-container">
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <span id="nav-item-claim" style="cursor: pointer;">請求書送信</span>
+                <span class="nav-disabled">シフト表編集</span>
+                <span id="nav-item-mypage" style="cursor: pointer;">マイページ</span>
+            </div>
+        </div>
+        <script>
+            // Streamlitのボタンクリックをシミュレートするためのスクリプト
+            const claimBtn = window.parent.document.querySelectorAll('button p').find(el => el.innerText === '請求書送信');
+            const mypageBtn = window.parent.document.querySelectorAll('button p').find(el => el.innerText === 'マイページ');
+            
+            document.getElementById('nav-item-claim').onclick = () => claimBtn.click();
+            document.getElementById('nav-item-mypage').onclick = () => mypageBtn.click();
+        </script>
+    """, unsafe_allow_html=True)
+    # Streamlitの標準ボタンを隠すための調整
+    st.markdown("""
+        <style>
+        div[data-testid="stHorizontalBlock"]:has(button[key^="nav_"]) {
+            display: none !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
 MYPAGE_PATH = "My-page.xlsx"
 SHIFT_PATH = "シフト表時計台警備通年.xlsx"
@@ -377,6 +457,7 @@ def login_page():
                 st.error("合言葉が正しくありません")
 
 def main_menu():
+    render_global_nav()
     # タイトルデザインの修正（改行・センター合わせ）
     st.markdown("""
         <style>
@@ -451,6 +532,7 @@ def get_jst_today():
     return (datetime.datetime.now(timezone.utc) + timedelta(hours=9)).date()
 
 def shift_edit_page():
+    render_global_nav()
     st.title("シフト表を編集")
     
     today = get_jst_today()
@@ -608,6 +690,7 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
                     st.error("会社へのメール送信に失敗しました。")
 
 def claim_send_page():
+    render_global_nav()
     st.markdown("""
         <h1 style="text-align: center; line-height: 1.3;">
             交通費請求書を<br>表示・送信
@@ -861,6 +944,7 @@ def claim_send_page():
         st.rerun()
 
 def mypage_page():
+    render_global_nav()
     st.title("マイページ")
     df_mypage = load_mypage()
     user_row = df_mypage[df_mypage["ID"] == st.session_state.user_id]
