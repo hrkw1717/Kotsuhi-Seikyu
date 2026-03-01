@@ -49,66 +49,54 @@ def get_target_company_email():
     return COMPANY_EMAIL_DEFAULT
 
 def render_global_nav():
-    """上端に青い帯のグローバルナビゲーションを表示する"""
-    # CSSと、隠しボタン特定用マーカー（#nav-btn-before）を同時に出力
+    """上端に青い帯のグローバルナビゲーションを表示する（透明クリック層方式）"""
+    # CSS：視覚用青い帯 + 透明なクリック層（ボタン行をopacity:0で帯の上に重ねる）
     st.markdown("""
         <style>
-        /* #nav-btn-beforeの直後のstHorizontalBlock（隠しボタン行）を非表示 */
-        div[data-testid="stVerticalBlock"] > div:has(#nav-btn-before) + div > [data-testid="stHorizontalBlock"] {
-            display: none !important;
-        }
+        /* 視覚用：固定青い帯 */
         .global-nav {
             position: fixed; top: 0; left: 0; width: 100%;
-            background-color: #1565c0; z-index: 9999;
-            padding: 10px 0; text-align: center;
+            background-color: #1565c0; z-index: 100;
+            height: 44px; display: flex;
+            justify-content: center; align-items: center;
         }
-        .global-nav a {
-            color: white; text-decoration: none;
-            font-size: 1rem; margin: 0 18px; cursor: pointer;
+        .global-nav span { color: white; font-size: 1rem; margin: 0 20px; }
+        .global-nav .nav-disabled { color: rgba(255,255,255,0.45); font-size: 1rem; margin: 0 20px; }
+
+        /* クリック層：ボタン行を青い帯の上にopacity:0で固定配置 */
+        div[data-testid="stVerticalBlock"] > div:nth-child(2) [data-testid="stHorizontalBlock"] {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 44px !important;
+            opacity: 0 !important; z-index: 9999 !important;
         }
-        .global-nav a:hover { text-decoration: underline; }
-        .global-nav .nav-disabled {
-            color: rgba(255,255,255,0.45); font-size: 1rem; margin: 0 18px;
+        div[data-testid="stVerticalBlock"] > div:nth-child(2) [data-testid="stHorizontalBlock"] button {
+            height: 44px !important; cursor: pointer !important;
         }
-        section.main > div.block-container { padding-top: 4rem !important; }
+
+        /* メインコンテンツが帯の下に隠れないようにする */
+        section.main > div.block-container { padding-top: 3.5rem !important; }
         header { visibility: hidden !important; }
         </style>
-        <div id="nav-btn-before"></div>
-    """, unsafe_allow_html=True)
-
-    # 隠しボタン（#nav-btn-beforeの直後 → CSSで自動的に非表示になる）
-    col_a, col_b = st.columns(2)
-    with col_a:
-        claim_clicked = st.button("NavClaim", key="nav_claim_hidden")
-    with col_b:
-        mypage_clicked = st.button("NavMypage", key="nav_mypage_hidden")
-
-    if claim_clicked:
-        st.session_state.page = "claim_send"
-        st.rerun()
-    if mypage_clicked:
-        st.session_state.page = "mypage"
-        st.rerun()
-
-    # 青い帯HTML（JavaScriptでボタンをクリックしてページ遷移）
-    st.markdown("""
         <div class="global-nav">
-            <a onclick="navClick('NavClaim')">請求書送信</a>
+            <span>請求書送信</span>
             <span class="nav-disabled">シフト表編集</span>
-            <a onclick="navClick('NavMypage')">マイページ</a>
+            <span>マイページ</span>
         </div>
-        <script>
-        function navClick(keyword) {
-            var btns = document.querySelectorAll('button');
-            for (var i = 0; i < btns.length; i++) {
-                if (btns[i].innerText.trim() === keyword) {
-                    btns[i].click();
-                    return;
-                }
-            }
-        }
-        </script>
     """, unsafe_allow_html=True)
+
+    # 透明クリック層のボタン（opacity:0により不可視、しかし確実にクリック可能）
+    col_a, col_b, col_c = st.columns([1, 1, 1])
+    with col_a:
+        if st.button("請求書送信", key="nav_claim", use_container_width=True):
+            st.session_state.page = "claim_send"
+            st.rerun()
+    with col_b:
+        st.write("")  # シフト表編集（disabled・クリック不可エリア）
+    with col_c:
+        if st.button("マイページ", key="nav_mypage", use_container_width=True):
+            st.session_state.page = "mypage"
+            st.rerun()
 
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
 MYPAGE_PATH = "My-page.xlsx"
