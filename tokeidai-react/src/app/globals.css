@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* 動作確認用の強制背景色（あとで消します） */
+body {
+  background-color: #f8fafc;
+}
+
+.login-card {
+  @apply bg-white/80 backdrop-blur-xl border border-white p-8 rounded-3xl shadow-2xl relative;
+}

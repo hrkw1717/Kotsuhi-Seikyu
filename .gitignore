@@ -1,6 +1,16 @@
 __pycache__/
+*.pyc
+.env
+.env.local
+.venv/
+env/
+venv/
+node_modules/
+.next/
 test_output_*.pdf
-# Excelファイル（マスタ、テンプレート）はリポジトリに含める必要があります
-# My-page.xlsx, テンプレート.xlsx, シフト表...xlsx など
-# 今回は初期データとしてリポジトリに含めるため、ここでは除外しません。
-# ただし、実行時に更新される My-page.xlsx 等をどう扱うかは注意が必要です。
+tmp/
+*.log
+
+# Windows
+Thumbs.db
+Desktop.ini
