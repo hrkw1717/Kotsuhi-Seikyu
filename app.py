@@ -103,9 +103,9 @@ def render_global_nav():
     st.markdown('<div id="nav-hidden-area">', unsafe_allow_html=True)
     col_hidden = st.columns([1, 1])
     with col_hidden[0]:
-        claim_clicked = st.button("__nav_claim__", key="nav_claim_hidden")
+        claim_clicked = st.button("XNAVCLAIMX", key="nav_claim_hidden")
     with col_hidden[1]:
-        mypage_clicked = st.button("__nav_mypage__", key="nav_mypage_hidden")
+        mypage_clicked = st.button("XNAVMYPAGEX", key="nav_mypage_hidden")
     st.markdown('</div>', unsafe_allow_html=True)
 
     if claim_clicked:
@@ -125,7 +125,7 @@ def render_global_nav():
         <script>
         function navClick(target) {
             var btns = window.parent.document.querySelectorAll('button');
-            var keyword = target === 'claim' ? '__nav_claim__' : '__nav_mypage__';
+            var keyword = target === 'claim' ? 'XNAVCLAIMX' : 'XNAVMYPAGEX';
             for (var i = 0; i < btns.length; i++) {
                 if (btns[i].innerText.trim() === keyword) {
                     btns[i].click();
@@ -138,8 +138,7 @@ def render_global_nav():
             var btns = window.parent.document.querySelectorAll('button');
             for (var i = 0; i < btns.length; i++) {
                 var txt = btns[i].innerText.trim();
-                if (txt === '__nav_claim__' || txt === '__nav_mypage__') {
-                    // 親の stHorizontalBlock ごと隠す
+                if (txt === 'XNAVCLAIMX' || txt === 'XNAVMYPAGEX') {
                     var parent = btns[i].closest('[data-testid="stHorizontalBlock"]');
                     if (parent) {
                         parent.style.cssText = 'position:absolute !important; top:-9999px !important; left:-9999px !important; height:0 !important; overflow:hidden !important; visibility:hidden !important; pointer-events:none !important;';
