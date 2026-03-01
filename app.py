@@ -731,8 +731,6 @@ def claim_send_page():
     ●シフト表から勤務の日付を特定し、運賃等を書き込んでいます。
     </div>
     """
-    if is_last_month:
-        msg += '<div class="blue-btn-marker"></div>'
     st.markdown(msg, unsafe_allow_html=True)
     
     # CSS：縦積みを防ぎ、比率制御（data-testidに依存しない位置ターゲット）
@@ -808,7 +806,7 @@ def claim_send_page():
             overflow-x: auto !important;
         }
         /* 先月判定マーカーがある場合のボタン装飾 */
-        div[data-testid="stVerticalBlock"]:has(.blue-btn-marker) div[data-testid="stHorizontalBlock"] button {
+        div[data-testid="stHorizontalBlock"]:has(.blue-btn-marker) button {
             background-color: #e3f2fd !important;
             color: #1565c0 !important;
             border: 1px solid #90caf9 !important;
@@ -828,6 +826,8 @@ def claim_send_page():
     col1, col2 = st.columns([11, 9])
     
     with col1:
+        if is_last_month:
+            st.markdown('<div class="blue-btn-marker"></div>', unsafe_allow_html=True)
         selected_label = st.selectbox("年月", options=option_labels, index=0, label_visibility="collapsed", key="sel_resp_v11")
     
     # 2. データの準備
