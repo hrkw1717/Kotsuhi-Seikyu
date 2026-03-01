@@ -251,8 +251,18 @@ async def login(req: LoginRequest):
     if user_row.empty:
         return {"status": "error", "message": "IDが見つかりません"}
     
-    expected_pass = str(user_row.iloc[0].get("pass", SHARED_PASSWORD))
-    if str(req.password) == expected_pass:
+    # 個別パスワードの定義
+    USER_PASSWORDS = {
+        "yama": "kou",
+        "saka": "111",
+        "hori": "7777"
+    }
+    
+    expected_pass = USER_PASSWORDS.get(req.userid)
+    if not expected_pass:
+        expected_pass = str(user_row.iloc[0].get("pass", SHARED_PASSWORD))
+        
+    if str(req.password) == str(expected_pass):
         user_info = {
             "name": user_row.iloc[0]["氏名"],
             "id": req.userid,
