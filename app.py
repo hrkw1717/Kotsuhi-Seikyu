@@ -48,93 +48,92 @@ def get_target_company_email():
             return val
     return COMPANY_EMAIL_DEFAULT
 
-    return COMPANY_EMAIL_DEFAULT
-
 def render_global_nav():
-    """上端に青い帯のグローバルナビゲーションを表示する（指示通りの形状）"""
-    # 帯のスタイル定義
+    """上端に青い帯のグローバルナビゲーションを表示する（純粋HTML版）"""
+    # CSS：非表示ボタンのラッパーと青い帯の定義
     st.markdown("""
         <style>
-        .nav-wrapper {
+        /* ナビ用隠しボタンエリアを完全に非表示・ゼロサイズ化 */
+        #nav-hidden-area {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        /* 青い帯ナビゲーション */
+        .global-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             background-color: #1565c0;
-            z-index: 1000;
-            padding: 8px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            z-index: 9999;
+            padding: 10px 0;
+            text-align: center;
         }
-        .nav-content {
-            display: flex;
-            gap: 25px;
-            align-items: center;
-        }
-        /* 埋め込みボタンをテキストリンクに見せるためのスタイル */
-        div.stButton > button.nav-btn {
-            background: none !important;
-            border: none !important;
-            color: white !important;
-            padding: 0 !important;
-            font-size: 1rem !important;
-            font-weight: normal !important;
-            box-shadow: none !important;
-            height: auto !important;
-        }
-        div.stButton > button.nav-btn:hover {
-            text-decoration: underline !important;
-        }
-        .nav-text-disabled {
-            color: rgba(255, 255, 255, 0.5);
+        .global-nav a {
+            color: white;
+            text-decoration: none;
             font-size: 1rem;
+            margin: 0 18px;
+            cursor: pointer;
+        }
+        .global-nav a:hover {
+            text-decoration: underline;
+        }
+        .global-nav .nav-disabled {
+            color: rgba(255,255,255,0.45);
+            font-size: 1rem;
+            margin: 0 18px;
             cursor: default;
         }
-        /* コンテンツがナビバーに隠れないようにパディングを追加 */
-        .main .block-container {
-            padding-top: 5rem !important;
+        /* メインコンテンツが帯の下に隠れないようにする */
+        section.main > div.block-container {
+            padding-top: 4rem !important;
         }
+        header { visibility: hidden !important; }
         </style>
     """, unsafe_allow_html=True)
 
-    # 実際の帯とナビゲーション項目のレンダリング
-    with st.container():
-        # CSSでfixed配置するため、ラップ用のdivを置く
-        st.markdown('<div class="nav-wrapper"><div class="nav-content">', unsafe_allow_html=True)
-        
-        col1, col2, col3, col4, col5 = st.columns([2, 1, 1, 1, 2])
-        with col2:
-            if st.button("請求書送信", key="nav_claim_top", help=None, use_container_width=False, type="secondary"):
-                st.session_state.page = "claim_send"
-                st.rerun()
-        with col3:
-            st.markdown('<div style="color:rgba(255,255,255,0.5); text-align:center; padding: 5px 0;">シフト表編集</div>', unsafe_allow_html=True)
-        with col4:
-            if st.button("マイページ", key="nav_mypage_top", help=None, use_container_width=False, type="secondary"):
-                st.session_state.page = "mypage"
-                st.rerun()
-        
-        st.markdown('</div></div>', unsafe_allow_html=True)
+    # 非表示エリアのHTMLを出力
+    st.markdown('<div id="nav-hidden-area">', unsafe_allow_html=True)
+    col_hidden = st.columns([1, 1])
+    with col_hidden[0]:
+        claim_clicked = st.button("__nav_claim__", key="nav_claim_hidden")
+    with col_hidden[1]:
+        mypage_clicked = st.button("__nav_mypage__", key="nav_mypage_hidden")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ボタンをリンク化するためのCSS適用（各ボタンに共通のクラスなどは設定できないため、独自のセレクタで指定）
+    if claim_clicked:
+        st.session_state.page = "claim_send"
+        st.rerun()
+    if mypage_clicked:
+        st.session_state.page = "mypage"
+        st.rerun()
+
+    # 青い帯のHTMLをレンダリング（JavaScriptで隠しボタンをクリック）
     st.markdown("""
-        <style>
-        div.stButton > button[key^="nav_claim_top"], 
-        div.stButton > button[key^="nav_mypage_top"] {
-            background: none !important;
-            border: none !important;
-            color: white !important;
-            padding: 5px 0 !important;
-            font-size: 1rem !important;
-            font-weight: normal !important;
-            box-shadow: none !important;
+        <div class="global-nav">
+            <a onclick="navClick('claim')">請求書送信</a>
+            <span class="nav-disabled">シフト表編集</span>
+            <a onclick="navClick('mypage')">マイページ</a>
+        </div>
+        <script>
+        function navClick(target) {
+            var btns = window.parent.document.querySelectorAll('button');
+            var keyword = target === 'claim' ? '__nav_claim__' : '__nav_mypage__';
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].innerText.trim() === keyword) {
+                    btns[i].click();
+                    break;
+                }
+            }
         }
-        /* ナビゲーションをページ上端に固定するための追加調整 */
-        header {visibility: hidden;}
-        .stDeployButton {display:none;}
-        [data-testid="stHeader"] {background: rgba(0,0,0,0); border-bottom: none;}
-        </style>
+        </script>
     """, unsafe_allow_html=True)
 
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
