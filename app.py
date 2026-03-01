@@ -162,20 +162,17 @@ def load_mypage():
         conn = st.connection("gsheets", type=GSheetsConnection)
         df = conn.read(worksheet="My-page", ttl=0) # ttl=0 で常に最新を取得
         
-        # 「会社メアド」列がない場合は追加
-        if "会社メアド" not in df.columns:
-            df["会社メアド"] = ""
-        # 「pass」列がない場合は追加
-        if "pass" not in df.columns:
-            df["pass"] = SHARED_PASSWORD
+        # 必要な列の補填
+        if "会社メアド" not in df.columns: df["会社メアド"] = ""
+        if "pass" not in df.columns: df["pass"] = SHARED_PASSWORD
             
         return df
     except Exception as e:
-        # スプレッドシートが空または読み込めない場合のフォールバック
-        # 初回起動時などはローカルのファイルを参考にして DataFrame を作成
+        # 開発用：読み込み失敗の理由を警告として出す
+        st.warning(f"💡 スプレッドシート読み込み失敗（ローカルを参照中）: {type(e).__name__}: {e}")
+        
         if os.path.exists(MYPAGE_PATH):
             df = pd.read_excel(MYPAGE_PATH)
-            # 必要な列の確認
             if "会社メアド" not in df.columns: df["会社メアド"] = ""
             if "pass" not in df.columns: df["pass"] = SHARED_PASSWORD
             return df
@@ -187,8 +184,11 @@ def save_mypage(df):
         conn.update(worksheet="My-page", data=df)
         return True
     except Exception as e:
-        st.error(f"スプレッドシートの保存に失敗しました: {e}")
-        # フォールバックとしてローカルにも保存しておく
+        # エラーの詳細を画面に出す
+        err_msg = f"{type(e).__name__}: {str(e)}"
+        st.error(f"❌ スプレッドシートの保存に失敗しました: {err_msg}")
+        
+        # フォールバック保存
         df.to_excel(MYPAGE_PATH, index=False)
         return False
 
