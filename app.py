@@ -98,8 +98,9 @@ def render_global_nav():
         </style>
     """, unsafe_allow_html=True)
 
-    # st.containerでナビバー全体をラップ
-    with st.container():
+    # st.columns(1)でナビバー全体を完全に隔離ラップ（RootブロックへのCSS誤爆防止）
+    nav_container = st.columns(1)[0]
+    with nav_container:
         st.markdown('<div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>', unsafe_allow_html=True)
         col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 3, 1])
         with col2:
