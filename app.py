@@ -58,8 +58,8 @@ def render_global_nav():
         header { visibility: hidden !important; }
         #nav-band-marker { height: 0; padding: 0; margin: 0; overflow: hidden; }
 
-        /* ナビ帯全体（マーカーを含む行自体を青くする）*/
-        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) {
+        /* ナビ帯全体（マーカーコンテナの直後にある行ブロックを青くする）*/
+        div[data-testid="stElementContainer"]:has(#nav-band-marker) + div[data-testid="stHorizontalBlock"] {
             background-color: #1565c0 !important;
             margin-left: -3rem !important;
             margin-right: -3rem !important;
@@ -69,8 +69,8 @@ def render_global_nav():
             padding-bottom: 8px !important;
         }
         /* ナビボタン：枠なし・白文字 */
-        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button,
-        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button[kind="secondary"] {
+        div[data-testid="stElementContainer"]:has(#nav-band-marker) + div[data-testid="stHorizontalBlock"] button,
+        div[data-testid="stElementContainer"]:has(#nav-band-marker) + div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
             background: transparent !important;
             border: none !important;
             color: white !important;
@@ -79,17 +79,17 @@ def render_global_nav():
             height: auto !important;
             min-height: 0 !important;
         }
-        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button p {
+        div[data-testid="stElementContainer"]:has(#nav-band-marker) + div[data-testid="stHorizontalBlock"] button p {
             color: white !important;
             font-size: 1rem !important;
             white-space: nowrap !important;
         }
-        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button:hover {
+        div[data-testid="stElementContainer"]:has(#nav-band-marker) + div[data-testid="stHorizontalBlock"] button:hover {
             text-decoration: underline !important;
             background: transparent !important;
         }
-        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button:focus,
-        div[data-testid="stHorizontalBlock"]:has(#nav-band-marker) button:active {
+        div[data-testid="stElementContainer"]:has(#nav-band-marker) + div[data-testid="stHorizontalBlock"] button:focus,
+        div[data-testid="stElementContainer"]:has(#nav-band-marker) + div[data-testid="stHorizontalBlock"] button:active {
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
@@ -100,9 +100,8 @@ def render_global_nav():
 
     # st.containerでナビバー全体をラップ
     with st.container():
+        st.markdown('<div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>', unsafe_allow_html=True)
         col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 3, 1])
-        with col1:
-            st.markdown('<div id="nav-band-marker" style="height:0;padding:0;margin:0;overflow:hidden;"></div>', unsafe_allow_html=True)
         with col2:
             if st.button("請求書送信", key="nav_claim", use_container_width=True):
                 st.session_state.page = "claim_send"
