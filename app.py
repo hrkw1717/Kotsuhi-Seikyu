@@ -1014,6 +1014,23 @@ def mypage_page():
             save_mypage(df_mypage)
             st.success("マイページを更新しました")
 
+    # --- 管理者専用機能 ---
+    if st.session_state.user_id == "hori":
+        st.markdown("---")
+        st.subheader("⚙️ 管理者専用機能")
+        st.info("現在クラウド上で稼働している最新のユーザーデータ（My-page.xlsx）をダウンロードできます。")
+        try:
+            with open(MYPAGE_PATH, "rb") as file:
+                btn = st.download_button(
+                    label="最新のユーザーデータ (My-page.xlsx) をダウンロード",
+                    data=file,
+                    file_name="最新_My-page.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
+        except Exception as e:
+            st.error("データの読み込みに失敗しました。まだファイルが存在しない可能性があります。")
+
 
 # --- メインロジック ---
 
