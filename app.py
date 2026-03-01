@@ -500,17 +500,17 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
     st.markdown(f"""
         <style>
         /* ダイアログ内のボタンを確実に中央揃えにする */
-        div[data-testid="stDialog"] button {
+        div[data-testid="stDialog"] button {{
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             height: 60px !important; /* 高さを固定して安定させる */
             font-size: 1.1rem !important;
-        }
-        div[data-testid="stDialog"] button p {
+        }}
+        div[data-testid="stDialog"] button p {{
             margin: 0 !important;
             line-height: 1 !important;
-        }
+        }}
         </style>
         <div style='text-align: center; padding: 10px 0 20px 0;'>
             <h3 style='margin-bottom: 25px; line-height: 1.6;'>
