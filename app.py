@@ -61,8 +61,8 @@ def render_global_nav():
         /* CSSセレクタによるナビ背景の指定はスコープ漏れのリスクが高いため廃止し、
            絶対配置の背景Divを使う方式へ変更 */
         /* ナビボタン：枠なし・白文字 */
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button,
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button[kind="secondary"] {
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) button,
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) button[kind="secondary"] {
             background: transparent !important;
             border: none !important;
             color: white !important;
@@ -71,22 +71,25 @@ def render_global_nav():
             height: auto !important;
             min-height: 0 !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button p {
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) button p {
             color: white !important;
             font-size: 1rem !important;
             white-space: nowrap !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:hover {
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) button:hover {
             text-decoration: underline !important;
             background: transparent !important;
+            color: white !important;
         }
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:focus,
-        div[data-testid="stVerticalBlock"]:has(> div #nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:active {
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) button:focus,
+        div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) button:active {
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
             background: transparent !important;
+            color: white !important;
         }
+        .nav-btn-target { display: none; }
         </style>
     """, unsafe_allow_html=True)
 
@@ -105,9 +108,10 @@ def render_global_nav():
         ''', unsafe_allow_html=True)
         
         # コンテンツ（ボタン等）のz-indexを上げて背景より前に出す
-        st.markdown('<style>div[data-testid="stHorizontalBlock"]:has(#nav_claim) { position: relative; z-index: 1; padding: 8px 3rem; }</style>', unsafe_allow_html=True)
+        st.markdown('<style>div[data-testid="stHorizontalBlock"]:has(.nav-btn-target) { position: relative; z-index: 1; padding: 8px 3rem; }</style>', unsafe_allow_html=True)
         col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 3, 1])
         with col2:
+            st.markdown('<div class="nav-btn-target"></div>', unsafe_allow_html=True)
             if st.button("請求書送信", key="nav_claim", use_container_width=True):
                 st.session_state.page = "claim_send"
                 st.rerun()
@@ -117,6 +121,7 @@ def render_global_nav():
                 unsafe_allow_html=True
             )
         with col4:
+            st.markdown('<div class="nav-btn-target"></div>', unsafe_allow_html=True)
             if st.button("マイページ", key="nav_mypage", use_container_width=True):
                 st.session_state.page = "mypage"
                 st.rerun()
