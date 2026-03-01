@@ -115,7 +115,7 @@ def render_global_nav():
         st.session_state.page = "mypage"
         st.rerun()
 
-    # 青い帯のHTMLをレンダリング（JavaScriptで隠しボタンをクリック）
+    # 青い帯のHTMLをレンダリング（JavaScriptで隠しボタンをクリック＆非表示）
     st.markdown("""
         <div class="global-nav">
             <a onclick="navClick('claim')">請求書送信</a>
@@ -133,6 +133,24 @@ def render_global_nav():
                 }
             }
         }
+        // 隠しボタンとその親コンテナを非表示にする
+        function hideNavBtns() {
+            var btns = window.parent.document.querySelectorAll('button');
+            for (var i = 0; i < btns.length; i++) {
+                var txt = btns[i].innerText.trim();
+                if (txt === '__nav_claim__' || txt === '__nav_mypage__') {
+                    // 親の stHorizontalBlock ごと隠す
+                    var parent = btns[i].closest('[data-testid="stHorizontalBlock"]');
+                    if (parent) {
+                        parent.style.cssText = 'position:absolute !important; top:-9999px !important; left:-9999px !important; height:0 !important; overflow:hidden !important; visibility:hidden !important; pointer-events:none !important;';
+                    }
+                }
+            }
+        }
+        // DOMロード直後と少し後に実行（Streamlitのレンダリング遅延に対応）
+        hideNavBtns();
+        setTimeout(hideNavBtns, 200);
+        setTimeout(hideNavBtns, 800);
         </script>
     """, unsafe_allow_html=True)
 
