@@ -56,11 +56,10 @@ def render_global_nav():
             padding-top: 0 !important;
         }
         header { visibility: hidden !important; }
+        .nav-band-marker { height: 0; padding: 0; margin: 0; overflow: hidden; }
 
-        .nav-band { height: 0; padding: 0; margin: 0; overflow: hidden; }
-
-        /* ナビ帯：ボタン行に直接背景色 */
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div {
+        /* ナビ帯全体（マーカーを含むVerticalBlockの子にある全要素をターゲット）*/
+        div[data-testid="stVerticalBlock"]:has(> div .nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) {
             background-color: #1565c0 !important;
             margin-left: -3rem !important;
             margin-right: -3rem !important;
@@ -69,8 +68,9 @@ def render_global_nav():
             padding-top: 8px !important;
             padding-bottom: 8px !important;
         }
-        /* ナビボタン：枠なし・白文字（specificityを上げて他ページCSSに勝つ） */
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button {
+        /* ナビボタン：枠なし・白文字 */
+        div[data-testid="stVerticalBlock"]:has(> div .nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button,
+        div[data-testid="stVerticalBlock"]:has(> div .nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button[kind="secondary"] {
             background: transparent !important;
             border: none !important;
             color: white !important;
@@ -79,41 +79,43 @@ def render_global_nav():
             height: auto !important;
             min-height: 0 !important;
         }
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button p {
+        div[data-testid="stVerticalBlock"]:has(> div .nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button p {
             color: white !important;
             font-size: 1rem !important;
             white-space: nowrap !important;
         }
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button:hover {
+        div[data-testid="stVerticalBlock"]:has(> div .nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:hover {
             text-decoration: underline !important;
             background: transparent !important;
         }
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button:focus,
-        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div[data-testid="stHorizontalBlock"] button:active {
+        div[data-testid="stVerticalBlock"]:has(> div .nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:focus,
+        div[data-testid="stVerticalBlock"]:has(> div .nav-band-marker) > div:has([data-testid="stHorizontalBlock"]) button:active {
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
             background: transparent !important;
         }
         </style>
-        <div class="nav-band" id="nav-band-top"></div>
     """, unsafe_allow_html=True)
 
-    # ナビゲーション行
-    col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 2])
-    with col2:
-        if st.button("請求書送信", key="nav_claim", use_container_width=True):
-            st.session_state.page = "claim_send"
-            st.rerun()
-    with col3:
-        st.markdown(
-            '<p style="text-align:center;color:rgba(255,255,255,0.45);margin:0;padding:7px 0;font-size:1rem;white-space:nowrap;">シフト表編集</p>',
-            unsafe_allow_html=True
-        )
-    with col4:
-        if st.button("マイページ", key="nav_mypage", use_container_width=True):
-            st.session_state.page = "mypage"
-            st.rerun()
+    # st.containerでナビバー全体をラップ
+    with st.container():
+        st.markdown('<div class="nav-band-marker"></div>', unsafe_allow_html=True)
+        col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 2])
+        with col2:
+            if st.button("請求書送信", key="nav_claim", use_container_width=True):
+                st.session_state.page = "claim_send"
+                st.rerun()
+        with col3:
+            st.markdown(
+                '<p style="text-align:center;color:rgba(255,255,255,0.45);margin:0;padding:7px 0;font-size:1rem;white-space:nowrap;">シフト表編集</p>',
+                unsafe_allow_html=True
+            )
+        with col4:
+            if st.button("マイページ", key="nav_mypage", use_container_width=True):
+                st.session_state.page = "mypage"
+                st.rerun()
+
 
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
 MYPAGE_PATH = "My-page.xlsx"
