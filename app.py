@@ -49,51 +49,66 @@ def get_target_company_email():
     return COMPANY_EMAIL_DEFAULT
 
 def render_global_nav():
-    """上端に青い帯のグローバルナビゲーションを表示する（透明クリック層方式）"""
-    # CSS：視覚用青い帯 + 透明なクリック層（ボタン行をopacity:0で帯の上に重ねる）
+    """上端に青い帯のグローバルナビゲーションを表示する（Streamlitネイティブ方式）"""
     st.markdown("""
         <style>
-        /* 視覚用：固定青い帯 */
-        .global-nav {
-            position: fixed; top: 0; left: 0; width: 100%;
-            background-color: #1565c0; z-index: 100;
-            height: 44px; display: flex;
-            justify-content: center; align-items: center;
+        section.main > div.block-container {
+            padding-top: 0 !important;
         }
-        .global-nav span { color: white; font-size: 1rem; margin: 0 20px; }
-        .global-nav .nav-disabled { color: rgba(255,255,255,0.45); font-size: 1rem; margin: 0 20px; }
-
-        /* クリック層：ボタン行を青い帯の上にopacity:0で固定配置 */
-        div[data-testid="stVerticalBlock"] > div:nth-child(2) [data-testid="stHorizontalBlock"] {
-            position: fixed !important;
-            top: 0 !important; left: 0 !important;
-            width: 100% !important; height: 44px !important;
-            opacity: 0 !important; z-index: 9999 !important;
-        }
-        div[data-testid="stVerticalBlock"] > div:nth-child(2) [data-testid="stHorizontalBlock"] button {
-            height: 44px !important; cursor: pointer !important;
-        }
-
-        /* メインコンテンツが帯の下に隠れないようにする */
-        section.main > div.block-container { padding-top: 3.5rem !important; }
         header { visibility: hidden !important; }
+
+        .nav-band { height: 0; padding: 0; margin: 0; overflow: hidden; }
+
+        /* ナビ帯：ボタン行に直接背景色 */
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div {
+            background-color: #1565c0 !important;
+            margin-left: -3rem !important;
+            margin-right: -3rem !important;
+            padding-left: 3rem !important;
+            padding-right: 3rem !important;
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+        }
+        /* ナビボタン：枠なし・白文字 */
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button {
+            background: transparent !important;
+            border: none !important;
+            color: white !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button p {
+            color: white !important;
+            font-size: 1rem !important;
+            white-space: nowrap !important;
+        }
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button:hover {
+            text-decoration: underline !important;
+            background: transparent !important;
+        }
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button:focus,
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button:active {
+            box-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            background: transparent !important;
+        }
         </style>
-        <div class="global-nav">
-            <span>請求書送信</span>
-            <span class="nav-disabled">シフト表編集</span>
-            <span>マイページ</span>
-        </div>
+        <div class="nav-band" id="nav-band-top"></div>
     """, unsafe_allow_html=True)
 
-    # 透明クリック層のボタン（opacity:0により不可視、しかし確実にクリック可能）
-    col_a, col_b, col_c = st.columns([1, 1, 1])
-    with col_a:
+    # ナビゲーション行
+    col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 2])
+    with col2:
         if st.button("請求書送信", key="nav_claim", use_container_width=True):
             st.session_state.page = "claim_send"
             st.rerun()
-    with col_b:
-        st.write("")  # シフト表編集（disabled・クリック不可エリア）
-    with col_c:
+    with col3:
+        st.markdown(
+            '<p style="text-align:center;color:rgba(255,255,255,0.45);margin:0;padding:7px 0;font-size:1rem;white-space:nowrap;">シフト表編集</p>',
+            unsafe_allow_html=True
+        )
+    with col4:
         if st.button("マイページ", key="nav_mypage", use_container_width=True):
             st.session_state.page = "mypage"
             st.rerun()
