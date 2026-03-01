@@ -162,8 +162,11 @@ def load_mypage():
         # 「会社メアド」列がない場合は追加
         if "会社メアド" not in df.columns:
             df["会社メアド"] = ""
+        # 「pass」列がない場合は追加
+        if "pass" not in df.columns:
+            df["pass"] = SHARED_PASSWORD
         return df
-    return pd.DataFrame(columns=["ID", "苗字", "氏名", "往復移動経路", "運賃", "送信", "メアド", "会社メアド"])
+    return pd.DataFrame(columns=["ID", "苗字", "氏名", "往復移動経路", "運賃", "送信", "メアド", "会社メアド", "pass"])
 
 def save_mypage(df):
     df.to_excel(MYPAGE_PATH, index=False)
@@ -470,7 +473,17 @@ def login_page():
         
         password = st.text_input("合言葉を入力してください", type="password")
         if st.form_submit_button("ログイン"):
-            if user_id in VALID_IDS and password == SHARED_PASSWORD:
+            # My-pageから個別パスワードを引いてくる
+            df_mypage = load_mypage()
+            user_row = df_mypage[df_mypage["ID"] == user_id]
+            
+            expected_pass = SHARED_PASSWORD
+            if not user_row.empty:
+                val = user_row.iloc[0].get("pass", "")
+                if val and not (isinstance(val, float) and pd.isna(val)):
+                    expected_pass = str(val)
+            
+            if user_id in VALID_IDS and password == expected_pass:
                 st.session_state.logged_in = True
                 st.session_state.user_id = user_id
                 st.rerun()
@@ -927,11 +940,21 @@ def mypage_page():
     if user_row.empty:
         # 新規登録（初期値）
         new_row = {"ID": st.session_state.user_id, "苗字": "", "氏名": "", "往復移動経路": "", "運賃": 460, "送信": "手動", "メアド": ""}
+    if user_row.empty:
+        # 新規登録（初期値）
+        new_row = {"ID": st.session_state.user_id, "苗字": "", "氏名": "", "往復移動経路": "", "運賃": 460, "送信": "手動", "メアド": "", "会社メアド": "", "pass": SHARED_PASSWORD}
         df_mypage = pd.concat([df_mypage, pd.DataFrame([new_row])], ignore_index=True)
         user_row = df_mypage[df_mypage["ID"] == st.session_state.user_id]
 
     with st.form("mypage_form"):
         full_name = st.text_input("氏名", value=user_row.iloc[0]["氏名"])
+        
+        # 追加：パスワード設定
+        current_pass = user_row.iloc[0].get("pass", SHARED_PASSWORD)
+        if isinstance(current_pass, float) and pd.isna(current_pass):
+            current_pass = SHARED_PASSWORD
+        user_pass = st.text_input("個別の合言葉（パスワード）", value=str(current_pass), type="password")
+        
         email = st.text_input("メールアドレス", value=user_row.iloc[0]["メアド"])
         route = st.text_input("往復移動経路", value=user_row.iloc[0]["往復移動経路"])
         fare = st.number_input("運賃", value=int(user_row.iloc[0]["運賃"]))
@@ -985,6 +1008,7 @@ def mypage_page():
             df_mypage.at[idx, "運賃"] = fare
             df_mypage.at[idx, "送信"] = "1日に自動" if send_setting == "毎月1日に自動" else "手動"
             df_mypage.at[idx, "メアド"] = email
+            df_mypage.at[idx, "pass"] = user_pass
             if st.session_state.user_id == "hori":
                 df_mypage.at[idx, "会社メアド"] = company_email_val
             save_mypage(df_mypage)
