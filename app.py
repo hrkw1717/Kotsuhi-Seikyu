@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import openpyxl
 from openpyxl.styles import Font, Alignment
+from streamlit_gsheets import GSheetsConnection
 import datetime
 from datetime import timezone, timedelta
 import os
@@ -157,19 +158,39 @@ TEMPLATE_PATH = "テンプレート.xlsx"
 # --- ユーティリティ関数 ---
 
 def load_mypage():
-    if os.path.exists(MYPAGE_PATH):
-        df = pd.read_excel(MYPAGE_PATH)
+    try:
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        df = conn.read(worksheet="My-page", ttl=0) # ttl=0 で常に最新を取得
+        
         # 「会社メアド」列がない場合は追加
         if "会社メアド" not in df.columns:
             df["会社メアド"] = ""
         # 「pass」列がない場合は追加
         if "pass" not in df.columns:
             df["pass"] = SHARED_PASSWORD
+            
         return df
-    return pd.DataFrame(columns=["ID", "苗字", "氏名", "往復移動経路", "運賃", "送信", "メアド", "会社メアド", "pass"])
+    except Exception as e:
+        # スプレッドシートが空または読み込めない場合のフォールバック
+        # 初回起動時などはローカルのファイルを参考にして DataFrame を作成
+        if os.path.exists(MYPAGE_PATH):
+            df = pd.read_excel(MYPAGE_PATH)
+            # 必要な列の確認
+            if "会社メアド" not in df.columns: df["会社メアド"] = ""
+            if "pass" not in df.columns: df["pass"] = SHARED_PASSWORD
+            return df
+        return pd.DataFrame(columns=["ID", "苗字", "氏名", "往復移動経路", "運賃", "送信", "メアド", "会社メアド", "pass"])
 
 def save_mypage(df):
-    df.to_excel(MYPAGE_PATH, index=False)
+    try:
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        conn.update(worksheet="My-page", data=df)
+        return True
+    except Exception as e:
+        st.error(f"スプレッドシートの保存に失敗しました: {e}")
+        # フォールバックとしてローカルにも保存しておく
+        df.to_excel(MYPAGE_PATH, index=False)
+        return False
 
 def get_email_body(surname, year, month):
     template_path = "mail-message.txt"
