@@ -823,16 +823,14 @@ def claim_send_page():
 
     # --- メッセージプレビューの表示 ---
     target_company_email = get_target_company_email()
-    email_preview = get_email_body(surname_label, year, month)
     st.markdown(f"""
-    <div style="font-size: 0.8rem; background-color: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; white-space: pre-wrap;">
+    <div style="font-size: 0.8rem; background-color: #f9f9f9; padding: 5px 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px; margin-bottom: 5px; white-space: pre-wrap;">
 【メッセージ】
 高橋　様　{target_company_email}
 時計台警備の{surname_label}です。お疲れ様です。
 交通費請求用紙　お送りします。
 {year}年{month}月分です。
-以上、どうぞ、よろしくお願い致します。
-    </div>
+以上、どうぞ、よろしくお願い致します。</div>
     """, unsafe_allow_html=True)
 
     # --- プレビューとダウンロード ---
