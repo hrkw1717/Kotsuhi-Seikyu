@@ -9,3 +9,4 @@ gspread
 google-auth
 pydantic
 python-dotenv
+pypdf
