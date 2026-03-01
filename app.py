@@ -751,6 +751,12 @@ def claim_send_page():
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            overflow: hidden !important;
+        }
+        /* ボタン内部の要素（divやp）もスクロールバーが出ないように隠す */
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) button > div,
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) button p {
+            overflow: hidden !important;
         }
         /* ボタンテキスト内の改行（\n）を有効化 */
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) button p,
