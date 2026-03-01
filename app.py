@@ -167,10 +167,8 @@ def load_mypage():
         if "pass" not in df.columns: df["pass"] = SHARED_PASSWORD
             
         return df
-    except Exception as e:
-        # 開発用：読み込み失敗の理由を警告として出す
-        st.warning(f"💡 スプレッドシート読み込み失敗（ローカルを参照中）: {type(e).__name__}: {e}")
-        
+    except Exception:
+        # スプレッドシートが取得できない場合は、フォールバックとしてローカルのファイルを読む
         if os.path.exists(MYPAGE_PATH):
             df = pd.read_excel(MYPAGE_PATH)
             if "会社メアド" not in df.columns: df["会社メアド"] = ""
@@ -184,10 +182,6 @@ def save_mypage(df):
         conn.update(worksheet="My-page", data=df)
         return True
     except Exception as e:
-        # エラーの詳細を画面に出す
-        err_msg = f"{type(e).__name__}: {str(e)}"
-        st.error(f"❌ スプレッドシートの保存に失敗しました: {err_msg}")
-        
         # フォールバック保存
         df.to_excel(MYPAGE_PATH, index=False)
         return False
