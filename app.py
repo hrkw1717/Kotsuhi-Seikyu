@@ -52,10 +52,21 @@ def render_global_nav():
     """上端に青い帯のグローバルナビゲーションを表示する（Streamlitネイティブ方式）"""
     st.markdown("""
         <style>
-        section.main > div.block-container {
+        /* Streamlit自体のレイアウト全体の上部余白を徹底的に削除 */
+        .stApp, div[data-testid="stAppViewContainer"], section.main {
             padding-top: 0 !important;
+            margin-top: 0 !important;
         }
-        header { visibility: hidden !important; }
+        /* バージョン依存のすべてのメインコンテナをターゲットにする */
+        .stMainBlockContainer, .stAppViewBlockContainer, div.block-container, section.main > div.block-container {
+            padding-top: 0rem !important;
+            margin-top: 0 !important;
+        }
+        /* デフォルトのヘッダーおよび装飾バーを完全に存在ごと消す */
+        header[data-testid="stHeader"], div[data-testid="stDecoration"] {
+            display: none !important;
+            height: 0 !important;
+        }
         #nav-band-marker { height: 0; padding: 0; margin: 0; overflow: hidden; }
 
         /* 擬似要素(::before)を使ってナビ行の背景に全幅の青帯を描画する（最も安全な方式） */
