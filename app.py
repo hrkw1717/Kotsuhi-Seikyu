@@ -466,40 +466,6 @@ def login_page():
             else:
                 st.error("合言葉が正しくありません")
 
-def main_menu():
-    render_global_nav()
-    # タイトルデザインの修正（改行・センター合わせ）
-    st.markdown("""
-        <style>
-        .main-title {
-            text-align: center;
-            font-size: 3rem;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 30px;
-        }
-        </style>
-        <div class="main-title">
-            交通費請求書<br>発行アプリ
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # ユーザー情報の取得（漢字名での呼びかけ用：苗字のみ）
-    df_mypage = load_mypage()
-    user_row = df_mypage[df_mypage["ID"] == st.session_state.user_id]
-    if not user_row.empty:
-        # 登録済みの苗字があればそれ、なければ氏名の先頭を使用
-        user_display_name = user_row.iloc[0].get("苗字", "")
-        if not user_display_name or (isinstance(user_display_name, float) and pd.isna(user_display_name)):
-            full_name = user_row.iloc[0].get("氏名", "")
-            user_display_name = full_name.split()[0] if full_name else st.session_state.user_id
-    else:
-        user_display_name = st.session_state.user_id
-    
-    st.write(f"おお！ {user_display_name}さんだ！　お疲れっす！")
-    
-    # 以前の大きなボタンは削除
-
 def get_jst_today():
     """UTCの実行環境でも現在の日本時間を返す"""
     # サーバーがUTCの場合、+9時間してJSTにする
@@ -541,14 +507,12 @@ def shift_edit_page():
     if st.button("変更を保存"):
         if save_shift_to_excel(year, month, edited_df):
             st.success("シフト表（Excel）を更新しました。")
-            st.session_state.page = "main"
+            st.session_state.page = "claim_send"
             st.rerun()
         else:
             st.error("Excelの更新に失敗しました。対象の月が見つからない可能性があります。")
 
-    if st.button("戻る"):
-        st.session_state.page = "main"
-        st.rerun()
+
 
 
 @st.dialog("送信確認")
@@ -747,7 +711,7 @@ def claim_send_page():
             flex-direction: row !important;
             flex-wrap: nowrap !important;
             gap: 8px !important;
-            align-items: center !important; /* 縦の配置を確実にあわせる */
+            align-items: flex-end !important; /* 絶対的な下揃え */
         }
         /* 55:45 比率でカラムを分割 */
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) > div:nth-child(1) {
@@ -761,26 +725,32 @@ def claim_send_page():
             width: auto !important;
         }
         /* 高さを完全に一致させる（84px固定） */
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-testid="stSelectbox"] {
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: flex-end !important;
+        }
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-testid="stSelectbox"] > div:first-child,
-        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-baseweb="select"],
+        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-baseweb="select"] {
+            height: 84px !important;
+            min-height: 84px !important;
+            margin: 0 !important;
+        }
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-baseweb="select"] > div {
             height: 84px !important;
             min-height: 84px !important;
-        }
-        /* ボタンよりも8px下に沈んでしまうデフォルトのズレを強制補正 */
-        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-testid="stSelectbox"] {
-            margin-top: -8px !important;
-        }
-        /* セレクトボックスの入力部分を中央に */
-        [data-testid="stHorizontalBlock"]:has(.send-row-marker) [data-baseweb="select"] > div {
-            align-items: center !important;
-            border-radius: 8px !important; /* ボタンと角丸を揃える */
+            align-items: center !important; /* 中央のテキスト（「2026年2月」）を上下中央に */
+            border-radius: 8px !important;
         }
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) button {
             height: 84px !important;
             min-height: 84px !important;
             border-radius: 8px !important;
             margin: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         /* ボタンテキスト内の改行（\n）を有効化 */
         [data-testid="stHorizontalBlock"]:has(.send-row-marker) button p,
@@ -930,9 +900,6 @@ def claim_send_page():
         mime="application/pdf"
     )
 
-    if st.button("戻る"):
-        st.session_state.page = "main"
-        st.rerun()
 
 def mypage_page():
     render_global_nav()
@@ -1006,23 +973,18 @@ def mypage_page():
             save_mypage(df_mypage)
             st.success("マイページを更新しました")
 
-    if st.button("戻る"):
-        st.session_state.page = "main"
-        st.rerun()
 
 # --- メインロジック ---
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "page" not in st.session_state:
-    st.session_state.page = "main"
+    st.session_state.page = "claim_send"
 
 if not st.session_state.logged_in:
     login_page()
 else:
-    if st.session_state.page == "main":
-        main_menu()
-    elif st.session_state.page == "shift_edit":
+    if st.session_state.page == "shift_edit":
         shift_edit_page()
     elif st.session_state.page == "claim_send":
         claim_send_page()
