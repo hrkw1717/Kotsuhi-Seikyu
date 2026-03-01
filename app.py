@@ -49,56 +49,60 @@ def get_target_company_email():
     return COMPANY_EMAIL_DEFAULT
 
 def render_global_nav():
-    """上端に青い帯のグローバルナビゲーションを表示する（クエリパラメータ方式）"""
-    # クエリパラメータによるページ遷移を処理
-    qp = st.query_params
-    if qp.get("go") == "claim":
-        st.query_params.clear()
-        st.session_state.page = "claim_send"
-        st.rerun()
-    elif qp.get("go") == "mypage":
-        st.query_params.clear()
-        st.session_state.page = "mypage"
-        st.rerun()
-
-    # 青い帯ナビゲーション（hrefリンクで?go=xxxに遷移、Pythonで受け取る）
+    """上端に青い帯のグローバルナビゲーションを表示する（st.button + CSS方式）"""
     st.markdown("""
         <style>
-        .global-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #1565c0;
-            z-index: 9999;
-            padding: 10px 0;
-            text-align: center;
+        /* gnav-anchorの次のブロック（ナビ行）を青い帯にする */
+        div:has(> #gnav-anchor) + div > [data-testid="stHorizontalBlock"],
+        div:has(#gnav-anchor) ~ div > [data-testid="stHorizontalBlock"] {
+            background-color: #1565c0 !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 9999 !important;
+            padding: 4px 0 !important;
         }
-        .global-nav a {
-            color: white;
-            text-decoration: none;
-            font-size: 1rem;
-            margin: 0 18px;
+        /* ナビボタンを白テキストの透明ボタンに */
+        div:has(> #gnav-anchor) + div button,
+        div:has(#gnav-anchor) ~ div button {
+            background: none !important;
+            border: none !important;
+            color: white !important;
+            box-shadow: none !important;
+            font-size: 1rem !important;
+            font-weight: normal !important;
         }
-        .global-nav a:hover {
-            text-decoration: underline;
+        div:has(> #gnav-anchor) + div button p,
+        div:has(#gnav-anchor) ~ div button p {
+            color: white !important;
+            font-size: 1rem !important;
         }
-        .global-nav .nav-disabled {
-            color: rgba(255,255,255,0.45);
-            font-size: 1rem;
-            margin: 0 18px;
+        /* カラムの背景も青に */
+        div:has(> #gnav-anchor) + div [data-testid="column"],
+        div:has(#gnav-anchor) ~ div [data-testid="column"] {
+            background-color: #1565c0 !important;
         }
         section.main > div.block-container {
-            padding-top: 4rem !important;
+            padding-top: 1rem !important;
         }
         header { visibility: hidden !important; }
         </style>
-        <div class="global-nav">
-            <a href="?go=claim">請求書送信</a>
-            <span class="nav-disabled">シフト表編集</span>
-            <a href="?go=mypage">マイページ</a>
-        </div>
+        <div id="gnav-anchor"></div>
     """, unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
+    with col2:
+        if st.button("請求書送信", key="nav_claim", use_container_width=True):
+            st.session_state.page = "claim_send"
+            st.rerun()
+    with col3:
+        st.markdown(
+            '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:8px 0;">シフト表編集</div>',
+            unsafe_allow_html=True
+        )
+    with col4:
+        if st.button("マイページ", key="nav_mypage", use_container_width=True):
+            st.session_state.page = "mypage"
+            st.rerun()
 
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
 MYPAGE_PATH = "My-page.xlsx"
