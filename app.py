@@ -115,6 +115,30 @@ def render_global_nav():
             st.session_state.page = "mypage"
             st.rerun()
 
+    # ナビバーCSSをボタン配置後に再適用（ページ固有CSSより後にロードさせカスケードで勝つ）
+    st.markdown("""
+        <style>
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button {
+            background: transparent !important;
+            border: none !important;
+            color: white !important;
+            box-shadow: none !important;
+            outline: none !important;
+            height: auto !important;
+            min-height: 0 !important;
+        }
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button p {
+            color: white !important;
+            font-size: 1rem !important;
+            white-space: nowrap !important;
+        }
+        div[data-testid="stVerticalBlock"] > div:has(#nav-band-top) + div button:hover {
+            text-decoration: underline !important;
+            background: transparent !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
 # データファイルのパス (ローカルテスト用。Streamlit Cloudではリポジトリ内パス)
 MYPAGE_PATH = "My-page.xlsx"
 SHIFT_PATH = "シフト表時計台警備通年.xlsx"
@@ -751,19 +775,19 @@ def claim_send_page():
             display: flex !important;
             align-items: center !important;
         }
-        [data-testid="stHorizontalBlock"]:not(:has(button[kind="secondary"][data-testid])):not(.nav-band-row) button:not([key^="nav_"]) {
+        [data-testid="stHorizontalBlock"] button {
             height: 80px !important;
             min-height: 80px !important;
         }
         /* ボタンテキスト内の改行（\n）を有効化 */
-        [data-testid="stHorizontalBlock"]:not(:has(button[kind="secondary"][data-testid])):not(.nav-band-row) button:not([key^="nav_"]) p,
-        [data-testid="stHorizontalBlock"]:not(:has(button[kind="secondary"][data-testid])):not(.nav-band-row) button:not([key^="nav_"]) > div {
+        [data-testid="stHorizontalBlock"] button p,
+        [data-testid="stHorizontalBlock"] button > div {
             white-space: pre-line !important;
             text-align: center !important;
             line-height: 1.4 !important;
         }
         /* 無効化時の「かすみ表示」設定 */
-        [data-testid="stHorizontalBlock"]:not(:has(button[kind="secondary"][data-testid])):not(.nav-band-row) button:not([key^="nav_"]):disabled {
+        [data-testid="stHorizontalBlock"] button:disabled {
             opacity: 0.6 !important; /* 少し濃くして読みやすく */
             background-color: #f0f0f0 !important;
             color: #444 !important; /* 文字色を濃いグレーに変更 */
