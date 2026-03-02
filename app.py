@@ -982,14 +982,15 @@ def mypage_page():
         fare = st.number_input("運賃", value=int(user_row.iloc[0]["運賃"]))
         send_setting = st.radio("送信設定", options=["手動", "毎月1日に自動"], index=0 if user_row.iloc[0]["送信"] == "手動" else 1)
         
-        # 全ユーザーが「会社メアド（送信先）」を編集できるようにする
-        email_options = ["sbs@sobun.net", "soumu@zendokeibi.com"]
-        current_val = user_row.iloc[0].get("会社メアド", "sbs@sobun.net")
-        if current_val not in email_options:
-            email_options.append(current_val) if current_val and not (isinstance(current_val, float) and pd.isna(current_val)) else None
-        
-        # セレクトボックスで選択。options にない場合は追加されるように考慮
-        company_email_val = st.selectbox("会社メアド（送信先）", options=email_options, index=email_options.index(current_val) if current_val in email_options else 0)
+        # 会社メアド（送信先）: 堀川氏のみ変更可能
+        is_hori = st.session_state.user_id == "hori"
+        company_email_val = st.selectbox(
+            "会社メアド（送信先）", 
+            options=email_options, 
+            index=email_options.index(current_val) if current_val in email_options else 0,
+            disabled=not is_hori,
+            help="※送信先の設定は管理者のみ変更可能です" if not is_hori else None
+        )
         
         # 保存ボタンのスタイルカスタマイズ
         st.markdown("""

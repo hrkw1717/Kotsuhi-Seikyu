@@ -233,14 +233,20 @@ export default function MyPage() {
                                         <ShieldCheck size={12} className="opacity-40" />
                                     </label>
                                     {isEditing ? (
-                                        <select
-                                            value={formData.company_email}
-                                            onChange={(e) => setFormData({ ...formData, company_email: e.target.value })}
-                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2.5 text-slate-900 font-bold focus:bg-white focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
-                                        >
-                                            <option value="sbs@sobun.net">sbs@sobun.net (総文)</option>
-                                            <option value="soumu@zendokeibi.com">soumu@zendokeibi.com (総務)</option>
-                                        </select>
+                                        <div className="space-y-2">
+                                            <select
+                                                value={formData.company_email}
+                                                onChange={(e) => setFormData({ ...formData, company_email: e.target.value })}
+                                                disabled={user?.id !== "hori"}
+                                                className={`w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2.5 text-slate-900 font-bold focus:bg-white focus:border-blue-500 outline-none transition-all appearance-none ${user?.id !== "hori" ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+                                            >
+                                                <option value="sbs@sobun.net">sbs@sobun.net (総文)</option>
+                                                <option value="soumu@zendokeibi.com">soumu@zendokeibi.com (総務)</option>
+                                            </select>
+                                            {user?.id !== "hori" && (
+                                                <p className="text-[10px] text-slate-400 font-bold ml-1">※ 送信先の設定は管理者のみ変更可能です</p>
+                                            )}
+                                        </div>
                                     ) : (
                                         <p className="text-blue-600 font-black ml-1 text-sm underline underline-offset-4 decoration-blue-200">{user.company_email}</p>
                                     )}

@@ -461,10 +461,13 @@ async def save_mypage(req: MyPageSaveRequest):
         updates = {
             "氏名": req.name,
             "メアド": req.email,
-            "会社メアド": req.company_email,
             "往復移動経路": req.route,
             "運賃": req.fare
         }
+        
+        # 会社メアドは hori のみ更新可能
+        if req.userid == "hori":
+            updates["会社メアド"] = req.company_email
         
         # パスワードが提供された場合のみ更新
         if req.password:
