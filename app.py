@@ -22,29 +22,36 @@ import calendar
 import base64
 import fitz # PyMuPDF
 import time
+from dotenv import load_dotenv
+
+# .env ファイルがあれば読み込む（ローカル用）
+load_dotenv()
 
 # --- 定数設定 ---
-APP_TITLE = "交通費請求書 発行アプリ"
+APP_TITLE = "時計台警備 交通費請求ツール"
 VALID_IDS = ["yama", "saka", "hori"]
 SHARED_PASSWORD = "tokei"
 
 # 本番環境（Streamlit Cloud）では st.secrets から取得します
-# ローカル環境ではデフォルト値を使用します
+# ローカル環境では環境変数（またはデフォルト値）を使用します
 try:
-    COMPANY_EMAIL_DEFAULT = st.secrets.get("COMPANY_EMAIL", "sbs@sobun.net")
-    SENDER_EMAIL = st.secrets.get("SENDER_EMAIL", "horikawa1717@gmail.com")
-    EMAIL_PASSWORD = st.secrets.get("EMAIL_PASSWORD", "")
+    COMPANY_EMAIL_DEFAULT = st.secrets.get("COMPANY_EMAIL_DEFAULT", "sbs@sobun.net")
+    SENDER_EMAIL = st.secrets.get("SENDER_EMAIL", os.getenv("SENDER_EMAIL", "horikawa1717@gmail.com"))
+    EMAIL_PASSWORD = st.secrets.get("EMAIL_PASSWORD", os.getenv("EMAIL_PASSWORD", ""))
 except:
-    COMPANY_EMAIL_DEFAULT = "sbs@sobun.net"
-    SENDER_EMAIL = "horikawa1717@gmail.com"
-    EMAIL_PASSWORD = ""
+    COMPANY_EMAIL_DEFAULT = os.getenv("COMPANY_EMAIL_DEFAULT", "sbs@sobun.net")
+    SENDER_EMAIL = os.getenv("SENDER_EMAIL", "horikawa1717@gmail.com")
+    EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
 
 def get_target_company_email():
-    """堀川（hori）の設定から会社メアドを取得し、なければデフォルトを返す"""
+    """ログイン中のユーザーの設定から会社メアドを取得し、なければデフォルトを返す"""
+    if "user_id" not in st.session_state:
+        return COMPANY_EMAIL_DEFAULT
+    
     df_all = load_mypage()
-    hori_row = df_all[df_all["ID"] == "hori"]
-    if not hori_row.empty:
-        val = hori_row.iloc[0].get("会社メアド", "")
+    user_row = df_all[df_all["ID"] == st.session_state.user_id]
+    if not user_row.empty:
+        val = user_row.iloc[0].get("会社メアド", "")
         if val and not (isinstance(val, float) and pd.isna(val)):
             return val
     return COMPANY_EMAIL_DEFAULT
@@ -975,14 +982,14 @@ def mypage_page():
         fare = st.number_input("運賃", value=int(user_row.iloc[0]["運賃"]))
         send_setting = st.radio("送信設定", options=["手動", "毎月1日に自動"], index=0 if user_row.iloc[0]["送信"] == "手動" else 1)
         
-        # 堀川さんの場合のみ「会社メアド（宛先）」の選択肢を表示
-        company_email_val = ""
-        if st.session_state.user_id == "hori":
-            email_options = ["sbs@sobun.net", "soumu@zendokeibi.com"]
-            current_val = user_row.iloc[0].get("会社メアド", "sbs@sobun.net")
-            if current_val not in email_options:
-                current_val = "sbs@sobun.net"
-            company_email_val = st.selectbox("会社メアド（送信先）", options=email_options, index=email_options.index(current_val))
+        # 全ユーザーが「会社メアド（送信先）」を編集できるようにする
+        email_options = ["sbs@sobun.net", "soumu@zendokeibi.com"]
+        current_val = user_row.iloc[0].get("会社メアド", "sbs@sobun.net")
+        if current_val not in email_options:
+            email_options.append(current_val) if current_val and not (isinstance(current_val, float) and pd.isna(current_val)) else None
+        
+        # セレクトボックスで選択。options にない場合は追加されるように考慮
+        company_email_val = st.selectbox("会社メアド（送信先）", options=email_options, index=email_options.index(current_val) if current_val in email_options else 0)
         
         # 保存ボタンのスタイルカスタマイズ
         st.markdown("""
@@ -1024,8 +1031,7 @@ def mypage_page():
             df_mypage.at[idx, "送信"] = "1日に自動" if send_setting == "毎月1日に自動" else "手動"
             df_mypage.at[idx, "メアド"] = email
             df_mypage.at[idx, "pass"] = user_pass
-            if st.session_state.user_id == "hori":
-                df_mypage.at[idx, "会社メアド"] = company_email_val
+            df_mypage.at[idx, "会社メアド"] = company_email_val
             save_mypage(df_mypage)
             st.success("マイページを更新しました")
 
