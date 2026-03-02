@@ -84,6 +84,15 @@ class ClaimRequest(BaseModel):
     month: str
     userid: str
 
+class MyPageSaveRequest(BaseModel):
+    userid: str
+    name: str
+    email: str
+    company_email: str
+    route: str
+    fare: int
+    password: Optional[str] = None
+
 def get_gsheet_client():
     creds_json = os.getenv("GCP_SERVICE_ACCOUNT_JSON")
     if not creds_json:
@@ -397,6 +406,54 @@ async def render_preview(req: ClaimRequest):
     import base64
     img_b64 = base64.b64encode(img_bytes).decode()
     return {"status": "success", "image": f"data:image/png;base64,{img_b64}"}
+
+@app.post("/api/mypage/save")
+async def save_mypage(req: MyPageSaveRequest):
+    try:
+        client = get_gsheet_client()
+        sh = client.open_by_url(SPREADSHEET_URL)
+        worksheet = sh.worksheet("My-page")
+        
+        # 全データを取得して該当行を特定
+        data = worksheet.get_all_records()
+        df = pd.DataFrame(data)
+        
+        if req.userid not in df["ID"].values:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # 行番号を特定 (get_all_records はヘッダーを除いたデータ。1行目はヘッダーなので、index+2 がシート上の行番号)
+        idx = df[df["ID"] == req.userid].index[0]
+        row_num = int(idx) + 2
+        
+        # 列名のリストを取得して更新対象の列番号を確認
+        headers = worksheet.row_values(1)
+        
+        # 更新データのマッピング (シートの列名に合わせて動的に特定)
+        updates = {
+            "氏名": req.name,
+            "メアド": req.email,
+            "会社メアド": req.company_email,
+            "往復移動経路": req.route,
+            "運賃": req.fare
+        }
+        
+        # パスワードが提供された場合のみ更新
+        if req.password:
+            updates["pass"] = req.password
+        
+        # 苗字を自動更新（氏名の最初のスペースまで）
+        if req.name:
+            updates["苗字"] = req.name.split()[0] if " " in req.name else req.name.split("　")[0]
+
+        for col_name, value in updates.items():
+            if col_name in headers:
+                col_num = headers.index(col_name) + 1
+                worksheet.update_cell(row_num, col_num, value)
+        
+        return {"status": "success", "message": "マイページを更新しました"}
+    except Exception as e:
+        print(f"Update error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
