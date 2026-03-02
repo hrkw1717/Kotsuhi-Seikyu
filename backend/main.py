@@ -285,6 +285,9 @@ async def login(req: LoginRequest):
     return {"status": "error", "message": "合言葉が違います"}
 
 def send_claim_email(to_email, subject, body, from_name, pdf_buffer, pdf_filename):
+    if not SENDER_EMAIL or not EMAIL_PASSWORD:
+        return False, "SENDER_EMAIL or EMAIL_PASSWORD is not set"
+        
     try:
         msg = MIMEMultipart()
         msg['From'] = formataddr((from_name, SENDER_EMAIL))
@@ -297,16 +300,17 @@ def send_claim_email(to_email, subject, body, from_name, pdf_buffer, pdf_filenam
             part['Content-Disposition'] = f'attachment; filename="{pdf_filename}"'
             msg.attach(part)
 
-        # Gmail以外を使う可能性も考慮し、設定を共通化できるようにする
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(SENDER_EMAIL, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
-        return True
+        return True, "Success"
+    except smtplib.SMTPAuthenticationError:
+        return False, "SMTP Authentication Failed (Check App Password)"
     except Exception as e:
         print(f"SMTP Error: {e}")
-        return False
+        return False, str(e)
 
 @app.post("/api/claims/preview")
 async def get_preview(req: ClaimRequest):
@@ -362,7 +366,7 @@ async def send_claim(req: ClaimRequest):
     filename = f"交通費請求書_{req.year}_{req.month}_{surname}.pdf"
     
     # 送信実行
-    success = send_claim_email(
+    success, error_msg = send_claim_email(
         user_info.get("会社メアド", COMPANY_EMAIL_DEFAULT),
         subject, body, f"時計台警備（{user_info['氏名']}）",
         pdf_buffer, filename
@@ -378,7 +382,7 @@ async def send_claim(req: ClaimRequest):
         )
         return {"status": "success", "message": "送信完了しました"}
     else:
-        return {"status": "error", "message": "送信に失敗しました。設定を確認してください。"}
+        return {"status": "error", "message": f"送信に失敗しました: {error_msg}"}
 
 @app.post("/api/claims/render-preview")
 async def render_preview(req: ClaimRequest):
