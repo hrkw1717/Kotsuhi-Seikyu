@@ -10,3 +10,4 @@ google-auth
 pydantic
 python-dotenv
 pypdf
+requests

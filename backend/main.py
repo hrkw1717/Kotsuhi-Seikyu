@@ -22,6 +22,8 @@ import calendar
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 import openpyxl
+import requests
+import base64
 
 # .env ファイルの読み込み（エラーを無視して続行）
 try:
@@ -39,6 +41,8 @@ SENDER_EMAIL = os.getenv("SENDER_EMAIL", "")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
 SPREADSHEET_URL = os.getenv("SPREADSHEET_URL", "")
 SHARED_PASSWORD = os.getenv("SHARED_PASSWORD", "tokei")
+GAS_DEPLOY_URL = os.getenv("GAS_DEPLOY_URL", "")
+GAS_SUB_KEY = os.getenv("GAS_SUB_KEY", "tokeidai-secret-key-123")
 
 # ファイルパス解決関数（本番・ローカル両対応）
 def find_file(filename):
@@ -285,6 +289,27 @@ async def login(req: LoginRequest):
     return {"status": "error", "message": "合言葉が違います"}
 
 def send_claim_email(to_email, subject, body, from_name, pdf_buffer, pdf_filename):
+    # GASゲートウェイが設定されている場合はそれを使用（SMTPブロック回避）
+    if GAS_DEPLOY_URL:
+        try:
+            payload = {
+                "key": GAS_SUB_KEY,
+                "to": to_email,
+                "subject": subject,
+                "body": body,
+                "fromName": from_name,
+                "filename": pdf_filename,
+                "attachmentBase64": base64.b64encode(pdf_buffer.getvalue()).decode('utf-8')
+            }
+            response = requests.post(GAS_DEPLOY_URL, json=payload, timeout=30)
+            if response.text == "Success":
+                return True, "Success via GAS"
+            else:
+                return False, f"GAS Error: {response.text}"
+        except Exception as e:
+            return False, f"GAS Connection Error: {str(e)}"
+
+    # 従来のSMTP方式（ローカル等で動作する場合用）
     if not SENDER_EMAIL or not EMAIL_PASSWORD:
         return False, "SENDER_EMAIL or EMAIL_PASSWORD is not set"
         
@@ -305,7 +330,7 @@ def send_claim_email(to_email, subject, body, from_name, pdf_buffer, pdf_filenam
         server.login(SENDER_EMAIL, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
-        return True, "Success"
+        return True, "Success via SMTP"
     except smtplib.SMTPAuthenticationError:
         return False, "SMTP Authentication Failed (Check App Password)"
     except Exception as e:
@@ -469,6 +494,7 @@ async def config_check():
     return {
         "SENDER_EMAIL": mask(SENDER_EMAIL),
         "EMAIL_PASSWORD": "Set" if EMAIL_PASSWORD else "Missing",
+        "GAS_DEPLOY_URL": mask(GAS_DEPLOY_URL) if GAS_DEPLOY_URL else "Not Used (Direct SMTP)",
         "SPREADSHEET_URL": mask(SPREADSHEET_URL),
         "GCP_JSON": "Set" if os.getenv("GCP_SERVICE_ACCOUNT_JSON") else "Missing",
         "FILES": {
