@@ -459,6 +459,24 @@ async def save_mypage(req: MyPageSaveRequest):
         print(f"Update error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/debug/config-check")
+async def config_check():
+    """環境変数の設定状況を確認する（機密情報は隠す）"""
+    def mask(s):
+        if not s: return "Missing"
+        return s[:2] + "*" * (len(s) - 2) if len(s) > 2 else "*" * len(s)
+    
+    return {
+        "SENDER_EMAIL": mask(SENDER_EMAIL),
+        "EMAIL_PASSWORD": "Set" if EMAIL_PASSWORD else "Missing",
+        "SPREADSHEET_URL": mask(SPREADSHEET_URL),
+        "GCP_JSON": "Set" if os.getenv("GCP_SERVICE_ACCOUNT_JSON") else "Missing",
+        "FILES": {
+            "template": "Found" if find_file("template.xlsx") else "Not Found",
+            "dummy_shift": "Found" if find_file("dummy_shift.xlsx") else "Not Found"
+        }
+    }
+
 if __name__ == "__main__":
     import uvicorn
     # デプロイ環境では PORT 環境変数が指定される
