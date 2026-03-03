@@ -200,7 +200,7 @@ export default function Dashboard() {
                                         >
                                             {dateOptions.map(opt => (
                                                 <option key={opt.value} value={opt.value}>
-                                                    {opt.label} {opt.isLastMonth ? "(送信対象)" : ""}
+                                                    {opt.label} {opt.isLastMonth ? "(送信対象)" : "(閲覧のみ)"}
                                                 </option>
                                             ))}
                                         </select>
