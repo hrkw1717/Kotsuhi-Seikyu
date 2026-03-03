@@ -60,6 +60,14 @@ export default function Dashboard() {
         }
     }, []);
 
+    // 年月変更時に自動でデータを読み込む
+    React.useEffect(() => {
+        const userJson = localStorage.getItem("user");
+        if (userJson) {
+            handleLoadData();
+        }
+    }, [selectedDate]);
+
     const handleLogout = () => {
         localStorage.removeItem("user");
         window.location.href = "/";
@@ -216,13 +224,13 @@ export default function Dashboard() {
                                         </select>
                                     </div>
 
-                                    <button
-                                        onClick={handleLoadData}
-                                        disabled={isLoading || status === "sending"}
-                                        className="w-full bg-slate-900 text-white rounded-2xl py-4 font-bold shadow-lg shadow-slate-200 hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:translate-y-0 flex items-center justify-center gap-2"
-                                    >
-                                        {isLoading ? <RefreshCw className="animate-spin" size={20} /> : "交通費 請求用紙を作成"}
-                                    </button>
+                                    {/* 従来の「作成」ボタンを廃止し、自動ロードに変更 */}
+                                    {isLoading && (
+                                        <div className="flex items-center justify-center gap-2 text-blue-600 font-bold py-2 animate-pulse">
+                                            <RefreshCw className="animate-spin" size={16} />
+                                            <span>データを読み込み中...</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
