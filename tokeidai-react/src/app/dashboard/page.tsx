@@ -212,38 +212,43 @@ export default function Dashboard() {
                     {/* Left Column: Controls */}
                     <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
                         <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div className="p-4 sm:p-6">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                                        <Calendar size={18} />
+                            <div>
+                                <div className="p-4 sm:p-6 pb-2 sm:pb-3">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                            <Calendar size={18} />
+                                        </div>
+                                        <h2 className="font-bold text-slate-800 tracking-tight">請求対象の選択</h2>
                                     </div>
-                                    <h2 className="font-bold text-slate-800 tracking-tight">請求対象の選択</h2>
+                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">対象年月</label>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">対象年月</label>
-                                        <select
-                                            value={selectedDate}
-                                            onChange={(e) => {
-                                                setSelectedDate(e.target.value);
-                                                setStatus("idle");
-                                                setPreviewImage(null);
-                                            }}
-                                            className="w-[calc(100%+2rem)] -ml-4 sm:w-full sm:ml-0 bg-slate-50 border-y sm:border border-slate-200 rounded-none sm:rounded-xl px-4 py-4 sm:py-3 text-base sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer"
-                                        >
-                                            {dateOptions.map(opt => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label} {
-                                                        opt.isLastMonth
-                                                            ? (lastSent ? `(送信済み: ${lastSent})` : "(送信対象)")
-                                                            : "(閲覧のみ)"
-                                                    }
-                                                </option>
-                                            ))}
-                                        </select>
+                                <div className="relative">
+                                    <select
+                                        value={selectedDate}
+                                        onChange={(e) => {
+                                            setSelectedDate(e.target.value);
+                                            setStatus("idle");
+                                            setPreviewImage(null);
+                                        }}
+                                        className="w-full bg-slate-50 border-y border-slate-200 px-5 sm:px-6 py-4 sm:py-3 text-base sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/10 transition-all cursor-pointer appearance-none"
+                                    >
+                                        {dateOptions.map(opt => (
+                                            <option key={opt.value} value={opt.value}>
+                                                {opt.label} {
+                                                    opt.isLastMonth
+                                                        ? (lastSent ? `(送信済み: ${lastSent})` : "(送信対象)")
+                                                        : "(閲覧のみ)"
+                                                }
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        <ChevronRight size={18} className="rotate-90" />
                                     </div>
+                                </div>
 
+                                <div className="p-4 sm:p-6 pt-2">
                                     {/* 従来の「作成」ボタンを廃止し、自動ロードに変更 */}
                                     {isLoading && (
                                         <div className="flex items-center justify-center gap-2 text-blue-600 font-bold py-2 animate-pulse">
