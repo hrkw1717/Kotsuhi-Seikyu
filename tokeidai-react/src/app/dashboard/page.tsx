@@ -223,7 +223,7 @@ export default function Dashboard() {
                                         {status === "success" && <CheckCircle2 size={24} />}
                                         <div>
                                             <p className="text-xl font-bold tracking-tight leading-none">
-                                                {status === "ready" && "準備完了"}
+                                                {status === "ready" && "請求用紙を作成しました"}
                                                 {status === "sending" && "送信中..."}
                                                 {status === "success" && "送信完了！"}
                                             </p>
