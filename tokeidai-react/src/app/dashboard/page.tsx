@@ -282,7 +282,7 @@ export default function Dashboard() {
                             <div className="px-6 py-4 border-b border-slate-100 flex items-center bg-slate-50/50">
                                 <div className="flex items-center gap-2">
                                     <FileText size={16} className="text-slate-400" />
-                                    <h3 className="text-sm font-bold text-slate-700 tracking-tight">請求用紙イメージ確認</h3>
+                                    <h3 className="text-sm font-bold text-slate-700 tracking-tight">シフト表と対照し内容を確認してください。</h3>
                                 </div>
                             </div>
                             <div className="p-8 md:p-12 bg-slate-200/50 flex justify-center">
