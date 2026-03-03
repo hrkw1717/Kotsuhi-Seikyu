@@ -358,7 +358,7 @@ async def get_preview(req: ClaimRequest):
         "status": "success",
         "data": {
             "recipient": user_info.get("会社メアド", COMPANY_EMAIL_DEFAULT),
-            "subject": f"交通費請求書_{req.year}{req.month}_{surname}",
+            "subject": f"交通費請求用紙_{req.year}{req.month}_{surname}",
             "body": f"全道警備センター　高橋　様\n時計台警備の {surname} です。お疲れ様です。 \n\n交通費請求用紙\n {req.year} 年 {req.month} 月分をお送りします。\n\n以上、どうぞよろしくお願い致します。",
             "days_count": len(dummy_days),
             "total_fare": len(dummy_days) * int(user_info["運賃"]),
@@ -386,9 +386,9 @@ async def send_claim(req: ClaimRequest):
         user_info["往復移動経路"], user_info["運賃"], working_days
     )
     
-    subject = f"交通費請求書_{req.year}{req.month}_{surname}"
+    subject = f"交通費請求用紙_{req.year}{req.month}_{surname}"
     body = f"全道警備センター　高橋　様\n時計台警備の {surname} です。お疲れ様です。 \n\n交通費請求用紙\n {req.year} 年 {req.month} 月分をお送りします。\n\n以上、どうぞよろしくお願い致します。"
-    filename = f"交通費請求書_{req.year}_{req.month}_{surname}.pdf"
+    filename = f"交通費請求用紙_{req.year}_{req.month}_{surname}.pdf"
     
     # 送信実行
     success, error_msg = send_claim_email(
