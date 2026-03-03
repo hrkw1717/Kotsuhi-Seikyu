@@ -212,7 +212,7 @@ export default function Dashboard() {
                     {/* Left Column: Controls */}
                     <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
                         <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div className="p-6">
+                            <div className="p-4 sm:p-6">
                                 <div className="flex items-center gap-2 mb-6">
                                     <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
                                         <Calendar size={18} />
@@ -262,7 +262,7 @@ export default function Dashboard() {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className={`p-6 rounded-3xl shadow-lg border ${status === "success"
+                                    className={`p-5 sm:p-6 rounded-3xl shadow-lg border ${status === "success"
                                         ? "bg-green-600 border-green-500 text-white shadow-green-100"
                                         : "bg-blue-600 border-blue-500 text-white shadow-blue-100"
                                         }`}
