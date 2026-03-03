@@ -120,7 +120,7 @@ export default function Dashboard() {
 
                     <div className="flex items-center gap-6">
                         <nav className="hidden md:flex gap-1">
-                            <button className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg">請求書送信</button>
+                            <button className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg">請求用紙送信</button>
                             <Link href="/mypage">
                                 <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors">マイページ</button>
                             </Link>
@@ -256,7 +256,7 @@ export default function Dashboard() {
                                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 font-mono text-sm text-slate-600 leading-relaxed shadow-inner">
                                     <div className="flex justify-between border-b border-slate-200 pb-3 mb-6">
                                         <span className="font-bold text-slate-800">To: {previewData?.recipient || "sbs@sobun.net"}</span>
-                                        <span className="text-slate-400">Subject: {previewData?.subject || `交通費請求用紙_${year}${month}_堀川勉`}</span>
+                                        <span className="text-slate-400">Subject: {previewData?.subject || `交通費請求用紙_${year}${month}_●●`}</span>
                                     </div>
                                     <p className="italic">
                                         {previewData?.body ? (
@@ -266,7 +266,7 @@ export default function Dashboard() {
                                         ) : (
                                             <>
                                                 sbs@sobun.net 様<br /><br />
-                                                堀川勉 です。<br />
+                                                時計台警備の ●●● です。<br />
                                                 {year}年{month}月分の交通費請求用紙を送付いたします。<br />
                                                 ご確認のほど、よろしくお願い申し上げます。
                                             </>
