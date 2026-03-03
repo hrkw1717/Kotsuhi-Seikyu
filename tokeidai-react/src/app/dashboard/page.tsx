@@ -133,35 +133,45 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
             {/* Navigation */}
             <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">T</div>
-                        <span className="text-lg font-bold tracking-tight text-slate-800">TOKEIDAI <span className="text-blue-600">CLAIM</span></span>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                        <nav className="hidden md:flex gap-1">
-                            <button className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg cursor-pointer">請求用紙送信</button>
-                            <Link href="/mypage" className="cursor-pointer">
-                                <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors cursor-pointer">マイページ</button>
-                            </Link>
-                        </nav>
-                        <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
                         <div className="flex items-center gap-3">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Authenticated</p>
-                                <p className="text-sm font-bold text-slate-700 leading-none">{userName} 様</p>
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 rotate-3">
+                                <FileText className="text-white" size={20} />
                             </div>
-                            <button
-                                onClick={handleLogout}
-                                title="ログアウト"
-                                className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-colors"
-                            >
-                                <LogOut size={18} />
-                            </button>
+                            <div>
+                                <h1 className="text-lg font-black text-slate-800 tracking-tighter leading-none">TOKEIDAI</h1>
+                                <p className="text-[10px] font-bold text-blue-600 tracking-[0.2em] leading-none mt-1">SMART CLAIM</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-6">
+                            <div className="hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+                                <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                                    <User size={14} />
+                                </div>
+                                <span className="text-sm font-bold text-slate-700">{userName} <span className="text-slate-400 font-medium">様</span></span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => (window.location.href = "/mypage")}
+                                    className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all cursor-pointer"
+                                    title="マイページ"
+                                >
+                                    <Settings size={22} />
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                                    title="ログアウト"
+                                >
+                                    <LogOut size={22} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -259,66 +269,108 @@ export default function Dashboard() {
                     {/* Right Column: Previews */}
                     <div className="lg:col-span-8 space-y-6">
                         {/* Message Preview */}
-                    </div>
-
-                    {/* Visual Preview */}
-                    <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-100 flex items-center bg-slate-50/50">
-                            <div className="flex items-center gap-2">
-                                <FileText size={16} className="text-slate-400" />
-                                <h3 className="text-sm font-bold text-slate-700 tracking-tight">シフト表と照合し内容を確認してください。</h3>
-                            </div>
-                        </div>
-                        <div className="p-8 md:p-12 bg-slate-200/50 flex justify-center">
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="bg-white w-full max-w-[600px] shadow-2xl rounded p-1 flex flex-col items-center overflow-hidden"
-                            >
-                                {previewImage ? (
-                                    <img
-                                        src={previewImage}
-                                        alt="請求用紙プレビュー"
-                                        className="w-full h-auto object-contain"
-                                    />
-                                ) : (
-                                    <div className="w-full aspect-[1/1.41] flex flex-col items-center justify-center space-y-4 py-20 bg-white">
-                                        <FileText className="w-12 h-12 text-slate-200" />
-                                        <p className="text-slate-400 text-sm font-medium italic">
-                                            No Preview Available
-                                        </p>
+                        <AnimatePresence>
+                            {selectedDate === dateOptions[0].value && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden"
+                                >
+                                    <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                        <div className="flex items-center gap-2">
+                                            <Mail size={16} className="text-slate-400" />
+                                            <h3 className="text-sm font-bold text-slate-700 tracking-tight">送信メッセージのプレビュー</h3>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">Draft</span>
+                                        </div>
                                     </div>
-                                )}
-                            </motion.div>
+                                    <div className="p-6">
+                                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 font-mono text-sm text-slate-600 leading-relaxed shadow-inner">
+                                            <div className="flex justify-between border-b border-slate-200 pb-3 mb-6">
+                                                <span className="font-bold text-slate-800">To: {previewData?.recipient || "sbs@sobun.net"}</span>
+                                                <span className="text-slate-400">Subject: {previewData?.subject || `交通費請求用紙_${year}${month}_●●`}</span>
+                                            </div>
+                                            <p className="italic">
+                                                {previewData?.body ? (
+                                                    previewData.body.split("\n").map((line: string, i: number) => (
+                                                        <React.Fragment key={i}>{line}<br /></React.Fragment>
+                                                    ))
+                                                ) : (
+                                                    <>
+                                                        全道警備センター　高橋　様<br />
+                                                        時計台警備の {userName.split(" ")[0] || userName} です。お疲れ様です。<br /><br />
+                                                        交通費請求用紙<br />
+                                                        {year}年{month}月分をお送りします。<br /><br />
+                                                        以上、どうぞよろしくお願い致します。
+                                                    </>
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Visual Preview */}
+                        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-slate-100 flex items-center bg-slate-50/50">
+                                <div className="flex items-center gap-2">
+                                    <FileText size={16} className="text-slate-400" />
+                                    <h3 className="text-sm font-bold text-slate-700 tracking-tight">シフト表と照合し内容を確認してください。</h3>
+                                </div>
+                            </div>
+                            <div className="p-8 md:p-12 bg-slate-200/50 flex justify-center">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="bg-white w-full max-w-[600px] shadow-2xl rounded p-1 flex flex-col items-center overflow-hidden"
+                                >
+                                    {previewImage ? (
+                                        <img
+                                            src={previewImage}
+                                            alt="請求用紙プレビュー"
+                                            className="w-full h-auto object-contain"
+                                        />
+                                    ) : (
+                                        <div className="w-full aspect-[1/1.41] flex flex-col items-center justify-center space-y-4 py-20 bg-white">
+                                            <FileText className="w-12 h-12 text-slate-200" />
+                                            <p className="text-slate-400 text-sm font-medium italic">
+                                                No Preview Available
+                                            </p>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </main>
+
+            {/* Floating Action Button */}
+            <AnimatePresence>
+                {status === "ready" && selectedDate === dateOptions[0].value && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        className="fixed bottom-8 left-0 right-0 z-40 flex justify-center pointer-events-none"
+                    >
+                        <button
+                            onClick={handleSend}
+                            className="pointer-events-auto bg-emerald-600 text-white px-12 py-5 rounded-full font-bold text-lg shadow-2xl shadow-emerald-500/40 hover:bg-emerald-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 active:translate-y-0"
+                        >
+                            <Send size={20} />
+                            この内容で会社へ送信する
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <footer className="mt-auto py-8 border-t border-slate-200 bg-white text-center">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">© 2026 TOKEIDAI KEIBI - Powerd by Advanced Agentic Technology</p>
+            </footer>
         </div>
-
-                {/* Floating Action Button */ }
-    <AnimatePresence>
-        {status === "ready" && selectedDate === dateOptions[0].value && (
-            <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 50 }}
-                className="fixed bottom-8 left-0 right-0 z-40 flex justify-center pointer-events-none"
-            >
-                <button
-                    onClick={handleSend}
-                    className="pointer-events-auto bg-emerald-600 text-white px-12 py-5 rounded-full font-bold text-lg shadow-2xl shadow-emerald-500/40 hover:bg-emerald-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 active:translate-y-0"
-                >
-                    <Send size={20} />
-                    この内容で会社へ送信する
-                </button>
-            </motion.div>
-        )}
-    </AnimatePresence>
-            </main >
-
-        <footer className="mt-auto py-8 border-t border-slate-200 bg-white text-center">
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">© 2026 TOKEIDAI KEIBI - Powerd by Advanced Agentic Technology</p>
-        </footer>
-        </div >
     );
 }
