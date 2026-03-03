@@ -19,14 +19,38 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+// 日本時間（JST）に基づいた日付を取得するユーティリティ
+const getJstDate = () => {
+    const now = new Date();
+    const jstOffset = 9 * 60; // 日本はUTC+9
+    const localOffset = now.getTimezoneOffset();
+    return new Date(now.getTime() + (jstOffset + localOffset) * 60000);
+};
+
 export default function Dashboard() {
-    const [year, setYear] = useState("2026");
-    const [month, setMonth] = useState("02");
+    // 選択肢の生成 (JST基準で「先月」「今月」「来月」)
+    const jstNow = getJstDate();
+    const dateOptions = [
+        new Date(jstNow.getFullYear(), jstNow.getMonth() - 1, 1), // 先月
+        new Date(jstNow.getFullYear(), jstNow.getMonth(), 1),     // 今月
+        new Date(jstNow.getFullYear(), jstNow.getMonth() + 1, 1), // 来月
+    ].map(d => ({
+        value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+        label: `${d.getFullYear()}年${d.getMonth() + 1}月`,
+        isLastMonth: d.getFullYear() === (jstNow.getMonth() === 0 ? jstNow.getFullYear() - 1 : jstNow.getFullYear()) &&
+            d.getMonth() === (jstNow.getMonth() === 0 ? 11 : jstNow.getMonth() - 1)
+    }));
+
+    // 初期値は「先月」
+    const [selectedDate, setSelectedDate] = useState(dateOptions[0].value);
     const [isLoading, setIsLoading] = useState(false);
     const [previewData, setPreviewData] = useState<any>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [status, setStatus] = useState("idle");
     const [userName, setUserName] = useState("ゲスト");
+
+    // バックエンド送付用の年月（パースして保持）
+    const [year, month] = selectedDate.split("-");
 
     React.useEffect(() => {
         const userJson = localStorage.getItem("user");
@@ -163,30 +187,23 @@ export default function Dashboard() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-1.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Year</label>
-                                            <select
-                                                value={year}
-                                                onChange={(e) => setYear(e.target.value)}
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                            >
-                                                <option value="2026">2026年</option>
-                                                <option value="2025">2025年</option>
-                                            </select>
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Month</label>
-                                            <select
-                                                value={month}
-                                                onChange={(e) => setMonth(e.target.value)}
-                                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                            >
-                                                {["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"].map(m => (
-                                                    <option key={m} value={m}>{parseInt(m)}月</option>
-                                                ))}
-                                            </select>
-                                        </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">対象年月</label>
+                                        <select
+                                            value={selectedDate}
+                                            onChange={(e) => {
+                                                setSelectedDate(e.target.value);
+                                                setStatus("idle");
+                                                setPreviewImage(null);
+                                            }}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                        >
+                                            {dateOptions.map(opt => (
+                                                <option key={opt.value} value={opt.value}>
+                                                    {opt.label} {opt.isLastMonth ? "(送信対象)" : ""}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
 
                                     <button
@@ -313,7 +330,7 @@ export default function Dashboard() {
 
                 {/* Floating Action Button */}
                 <AnimatePresence>
-                    {status === "ready" && (
+                    {status === "ready" && selectedDate === dateOptions[0].value && (
                         <motion.div
                             initial={{ opacity: 0, y: 50 }}
                             animate={{ opacity: 1, y: 0 }}
