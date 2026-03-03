@@ -203,7 +203,7 @@ export default function MyPage() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">社員ID</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">ユーザーID</label>
                                     <div className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2.5 text-slate-500 font-black tracking-widest text-sm opacity-70">
                                         {user.id}
                                     </div>
