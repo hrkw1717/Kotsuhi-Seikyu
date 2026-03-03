@@ -301,8 +301,8 @@ export default function MyPage() {
                                                 />
                                             </div>
                                         ) : (
-                                            <div className="flex items-baseline gap-1.5 ml-1">
-                                                <span className="font-black text-slate-300 text-xl">¥</span>
+                                            <div className="flex items-center gap-1.5 ml-1">
+                                                <span className="font-black text-emerald-600/30 text-4xl">¥</span>
                                                 <p className="text-emerald-600 font-black text-4xl tracking-tight">
                                                     {user.fare?.toLocaleString()}
                                                 </p>
