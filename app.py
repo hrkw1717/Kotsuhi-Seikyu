@@ -428,10 +428,19 @@ def generate_claim_pdf(user_id, month, year, route, fare, shift_data):
     # 合成
     new_pdf_reader = PdfReader(packet)
     output = PdfWriter()
-    # 注意: template_pageをコピーして使用
+    
+    # コンテンツ全体を 25ポイント 下へ移動して上下余白を均等にする
+    from pypdf import Transformation
+    op = Transformation().translate(0, -25)
+    
     import copy
     merged_page = copy.copy(template_page)
-    merged_page.merge_page(new_pdf_reader.pages[0])
+    merged_page.add_transformation(op) # テンプレートをシフト
+    
+    overlay_page = new_pdf_reader.pages[0]
+    overlay_page.add_transformation(op) # 書き込み内容をシフト
+    
+    merged_page.merge_page(overlay_page)
     output.add_page(merged_page)
     
     result_buffer = BytesIO()

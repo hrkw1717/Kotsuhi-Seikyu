@@ -238,8 +238,18 @@ def generate_pdf_buffer(user_name, year, month, route, fare, shift_days):
     reader = PdfReader(template_path)
     new_pdf = PdfReader(packet)
     output = PdfWriter()
+    
+    # コンテンツ全体を 25ポイント（約8.8mm）下へ移動して上下余白を均等にする
+    from pypdf import Transformation
+    op = Transformation().translate(0, -25)
+    
     page = reader.pages[0]
-    page.merge_page(new_pdf.pages[0])
+    page.add_transformation(op) # テンプレートをシフト
+    
+    overlay_page = new_pdf.pages[0]
+    overlay_page.add_transformation(op) # 書き込み内容をシフト
+    
+    page.merge_page(overlay_page)
     output.add_page(page)
     
     final_buffer = BytesIO()
