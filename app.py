@@ -146,7 +146,7 @@ def render_global_nav():
         with col1:
             st.markdown('<div class="nav-btn-target"></div>', unsafe_allow_html=True)
         with col2:
-            if st.button("請求書送信", key="nav_claim", use_container_width=True):
+            if st.button("請求用紙送信", key="nav_claim", use_container_width=True):
                 st.session_state.page = "claim_send"
                 st.rerun()
         with col3:
@@ -209,7 +209,7 @@ def get_email_body(surname, year, month):
             except:
                 continue
     # テンプレートがない場合のフォールバック
-    return f"高橋 様\n\n時計台警備の{surname}です。\nお疲れ様です。\n\n交通費請求書（{year}年{month}月分）をお送りします。\n\n以上、どうぞよろしくお願い致します。"
+    return f"全道警備センター　高橋　様\n\n時計台警備の {surname} です。\nお疲れ様です。 \n\n交通費請求用紙\n {year} 年 {month} 月分をお送りします。\n\n以上、どうぞよろしくお願い致します。"
 
 def load_shift_data(year, month):
     month_label = f"{month}月"
@@ -892,7 +892,7 @@ def claim_send_page():
     # 名字ラベルの取得（苗字がなければ氏名の先頭を使用）
     surname_label = user_info.get("苗字", "")
     if not surname_label or (isinstance(surname_label, float) and pd.isna(surname_label)):
-        surname_label = user_name.split()[0] if user_name else "請求書"
+        surname_label = user_name.split()[0] if user_name else "請求用紙"
         
     filename_pdf = f"交通費請求用紙_{year}_{month}_{surname_label}.pdf"
 
@@ -940,9 +940,9 @@ def claim_send_page():
     st.markdown(f"""
         <div class="pdf-preview-wrapper">
             <img src="data:image/png;base64,{img_b64}"
-                 alt="請求書プレビュー（確認用）">
+                 alt="請求用紙プレビュー（確認用）">
         </div>
-        <p style="font-size: 0.8em; color: #888; margin-top: 4px;">請求書プレビュー（確認用）</p>
+        <p style="font-size: 0.8em; color: #888; margin-top: 4px;">請求用紙プレビュー（確認用）</p>
     """, unsafe_allow_html=True)
 
     st.download_button(
