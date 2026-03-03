@@ -280,7 +280,7 @@ export default function MyPage() {
                                     />
                                 ) : (
                                     <div className="bg-slate-50 rounded-2xl p-6 border-2 border-slate-100">
-                                        <p className="text-slate-900 font-bold text-lg leading-relaxed">{user.route || "未設定"}</p>
+                                        <p className="text-slate-900 font-bold text-xl leading-relaxed">{user.route || "未設定"}</p>
                                     </div>
                                 )}
                             </div>
@@ -302,7 +302,7 @@ export default function MyPage() {
                                             </div>
                                         ) : (
                                             <div className="bg-slate-50 rounded-2xl p-6 border-2 border-slate-100 w-full">
-                                                <p className="text-slate-900 font-bold text-lg leading-relaxed">
+                                                <p className="text-slate-900 font-bold text-xl leading-relaxed">
                                                     ¥{user.fare?.toLocaleString()}
                                                 </p>
                                             </div>
