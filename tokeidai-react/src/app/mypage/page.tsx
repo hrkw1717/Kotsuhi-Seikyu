@@ -328,7 +328,7 @@ export default function MyPage() {
                             <div className="p-5 bg-blue-50 rounded-2xl border-2 border-blue-100 flex gap-4">
                                 <ShieldCheck className="text-blue-500 shrink-0 mt-0.5" size={20} />
                                 <p className="text-[11px] text-blue-700 font-bold leading-relaxed">
-                                    この設定に基づき請求書がPDF作成されます。変更すると次回送信分から反映されます。
+                                    この設定に基づき請求用紙がPDF作成されます。変更すると次回送信分から反映されます。
                                 </p>
                             </div>
                         </div>
