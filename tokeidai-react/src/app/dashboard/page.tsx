@@ -230,7 +230,7 @@ export default function Dashboard() {
                                                 setStatus("idle");
                                                 setPreviewImage(null);
                                             }}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                                            className="w-[calc(100%+2rem)] -ml-4 sm:w-full sm:ml-0 bg-slate-50 border-y sm:border border-slate-200 rounded-none sm:rounded-xl px-4 py-4 sm:py-3 text-base sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer"
                                         >
                                             {dateOptions.map(opt => (
                                                 <option key={opt.value} value={opt.value}>
