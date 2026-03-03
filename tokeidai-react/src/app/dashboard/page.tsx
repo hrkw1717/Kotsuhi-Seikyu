@@ -120,9 +120,9 @@ export default function Dashboard() {
 
                     <div className="flex items-center gap-6">
                         <nav className="hidden md:flex gap-1">
-                            <button className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg">請求用紙送信</button>
-                            <Link href="/mypage">
-                                <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors">マイページ</button>
+                            <button className="px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg cursor-pointer">請求用紙送信</button>
+                            <Link href="/mypage" className="cursor-pointer">
+                                <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors cursor-pointer">マイページ</button>
                             </Link>
                         </nav>
                         <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
