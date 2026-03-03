@@ -545,6 +545,165 @@ async def config_check():
         }
     }
 
+# ============================================================
+# シフト表 API
+# ============================================================
+
+SHIFT_STAFF_NAMES = ["山口", "坂下", "堀川"]
+
+class ShiftDayEntry(BaseModel):
+    day: int
+    name: str  # 担当者名
+
+class ShiftSaveRequest(BaseModel):
+    entries: List[ShiftDayEntry]
+
+def _get_shift_ws(year: int, month: int, data_only: bool = True):
+    """シフト表Excelから指定月のワークシートと開始行を返す"""
+    wb = openpyxl.load_workbook(SHIFT_PATH, data_only=data_only)
+    month_label = f"{month}月"
+    for sheet_name in wb.sheetnames:
+        ws = wb[sheet_name]
+        for row in range(1, 150):
+            for col in range(1, 10):
+                if ws.cell(row=row, column=col).value == month_label:
+                    return wb, ws, row
+    return wb, None, None
+
+@app.get("/api/shift/{year}/{month}")
+async def get_shift(year: int, month: int):
+    """指定年月のシフトデータを返す（全スタッフ分）"""
+    if not os.path.exists(SHIFT_PATH):
+        raise HTTPException(status_code=404, detail="シフト表ファイルが見つかりません")
+
+    try:
+        _, ws, start_row = _get_shift_ws(year, month)
+        if ws is None:
+            raise HTTPException(status_code=404, detail=f"{year}年{month}月のデータが見つかりません")
+
+        # 日付列の特定
+        day_cols: Dict[int, int] = {}
+        for c in range(1, ws.max_column + 1):
+            val = ws.cell(row=start_row, column=c).value
+            if isinstance(val, (int, float)) or (isinstance(val, str) and val.isdigit()):
+                day_cols[int(val)] = c
+
+        # 各スタッフの行インデックス取得
+        name_rows: Dict[str, int] = {}
+        for name in SHIFT_STAFF_NAMES:
+            for r in range(start_row, start_row + 100):
+                for c in range(1, 5):
+                    if ws.cell(row=r, column=c).value == name:
+                        name_rows[name] = r
+                        break
+                if name in name_rows:
+                    break
+
+        # 月の末日を計算
+        last_day = calendar.monthrange(year, month)[1]
+
+        # 応答データ構築 (1日〜末日の全スタッフ状態をマップ)
+        # result[day] = { staffName: status } 状態: "出" / "明" / ""
+        result = {}
+        for day in range(1, last_day + 1):
+            result[day] = {}
+            if day not in day_cols:
+                for name in SHIFT_STAFF_NAMES:
+                    result[day][name] = ""
+                continue
+            col = day_cols[day]
+            for name, r in name_rows.items():
+                val = ws.cell(row=r, column=col).value
+                result[day][name] = str(val).strip() if val else ""
+            # 登録されていないスタッフは空
+            for name in SHIFT_STAFF_NAMES:
+                if name not in result[day]:
+                    result[day][name] = ""
+
+        return {
+            "year": year,
+            "month": month,
+            "last_day": last_day,
+            "staff": SHIFT_STAFF_NAMES,
+            "data": result
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Shift read error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/shift/{year}/{month}/save")
+async def save_shift(year: int, month: int, body: ShiftSaveRequest):
+    """編集後のシフトデータをExcelに書き込む。
+    entries: [{day: 1, name: "堀川"}, ...] の形式で「出」とする日付と担当者を受け取る。
+    """
+    if not os.path.exists(SHIFT_PATH):
+        raise HTTPException(status_code=404, detail="シフト表ファイルが見つかりません")
+
+    try:
+        from openpyxl.styles import Alignment as XLAlignment
+        wb, ws, start_row = _get_shift_ws(year, month, data_only=False)
+        if ws is None:
+            raise HTTPException(status_code=404, detail=f"{year}年{month}月のデータが見つかりません")
+
+        # 日付列の特定
+        day_cols: Dict[int, int] = {}
+        for c in range(1, ws.max_column + 1):
+            val = ws.cell(row=start_row, column=c).value
+            if isinstance(val, (int, float)) or (isinstance(val, str) and val.isdigit()):
+                day_cols[int(val)] = c
+
+        # 各スタッフの行インデックス取得
+        name_rows: Dict[str, int] = {}
+        for name in SHIFT_STAFF_NAMES:
+            for r in range(start_row, start_row + 100):
+                for c in range(1, 5):
+                    if ws.cell(row=r, column=c).value == name:
+                        name_rows[name] = r
+                        break
+                if name in name_rows:
+                    break
+
+        # 全スタッフの対象月セルをクリア（「明」含む）
+        for r in name_rows.values():
+            for col in day_cols.values():
+                cell = ws.cell(row=r, column=col)
+                cell.value = None
+                cell.alignment = XLAlignment()
+
+        # 「出」の記入 + 翌日「明」の自動セット
+        for entry in body.entries:
+            day = entry.day
+            name = entry.name
+            if name not in name_rows or day not in day_cols:
+                continue
+
+            r = name_rows[name]
+            col = day_cols[day]
+
+            # 「出」を右寄せで記入
+            cell = ws.cell(row=r, column=col)
+            cell.value = "出"
+            cell.alignment = XLAlignment(horizontal="right")
+
+            # 翌日「明」を左寄せで記入（正月三が日は除く）
+            is_new_year_special = (month == 1 and day in [1, 2, 3])
+            if not is_new_year_special and (day + 1) in day_cols:
+                ake_col = day_cols[day + 1]
+                ake_cell = ws.cell(row=r, column=ake_col)
+                ake_cell.value = "明"
+                ake_cell.alignment = XLAlignment(horizontal="left")
+
+        wb.save(SHIFT_PATH)
+        return {"status": "success", "message": f"{year}年{month}月のシフトを保存しました"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Shift save error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     # デプロイ環境では PORT 環境変数が指定される
