@@ -172,12 +172,12 @@ export default function Dashboard() {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-6">
-                            <div className="hidden md:flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
-                                <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                                    <User size={14} />
+                        <div className="flex items-center gap-3 sm:gap-6">
+                            <div className="flex items-center gap-2 sm:gap-3 bg-slate-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-slate-100">
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                                    <User size={12} className="sm:w-[14px] sm:h-[14px]" />
                                 </div>
-                                <span className="text-sm font-bold text-slate-700">{userName} <span className="text-slate-400 font-medium">様</span></span>
+                                <span className="text-xs sm:text-sm font-bold text-slate-700">{userName}<span className="hidden xs:inline sm:inline ml-1 text-slate-400 font-medium">様</span></span>
                             </div>
 
                             <div className="flex items-center gap-2">
