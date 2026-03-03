@@ -288,20 +288,25 @@ export default function MyPage() {
                             <div className="flex flex-col md:flex-row gap-6">
                                 <div className="flex-1 space-y-2.5 focus-within:text-emerald-600 transition-colors">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">片道運賃 (税込)</label>
-                                    <div className="relative flex items-center">
-                                        <span className="absolute left-5 font-black text-slate-300 text-xl">¥</span>
+                                    <div className="flex items-center gap-2">
                                         {isEditing ? (
-                                            <input
-                                                type="number"
-                                                value={formData.fare}
-                                                onChange={(e) => setFormData({ ...formData, fare: parseInt(e.target.value) || 0 })}
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-11 pr-5 py-4 text-slate-900 font-black text-2xl focus:bg-white focus:border-emerald-500 outline-none transition-all shadow-inner shadow-slate-100"
-                                                required
-                                            />
+                                            <div className="relative flex-1 flex items-center">
+                                                <span className="absolute left-4 font-black text-slate-400 text-xl">¥</span>
+                                                <input
+                                                    type="number"
+                                                    value={formData.fare}
+                                                    onChange={(e) => setFormData({ ...formData, fare: parseInt(e.target.value) || 0 })}
+                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-10 pr-5 py-4 text-slate-900 font-black text-2xl focus:bg-white focus:border-emerald-500 outline-none transition-all shadow-inner shadow-slate-100"
+                                                    required
+                                                />
+                                            </div>
                                         ) : (
-                                            <p className="text-emerald-600 font-black text-3xl ml-1 tracking-tight">
-                                                {user.fare?.toLocaleString()}
-                                            </p>
+                                            <div className="flex items-baseline gap-1.5 ml-1">
+                                                <span className="font-black text-slate-300 text-xl">¥</span>
+                                                <p className="text-emerald-600 font-black text-4xl tracking-tight">
+                                                    {user.fare?.toLocaleString()}
+                                                </p>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
