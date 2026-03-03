@@ -407,7 +407,15 @@ async def send_claim(req: ClaimRequest):
         subject, body, f"時計台警備（{user_info['氏名']}）",
         pdf_buffer, filename
     )
-    
+    if success:
+        # 自分用にも送信（控え）
+        send_claim_email(
+            user_info["メアド"], f"【送信済】{subject}",
+            f"以下を会社へ送信しました：\n\n{body}",
+            f"時計台警備（{user_info['氏名']}）",
+            pdf_buffer, filename
+        )
+
         # 最終送信日時をスプレッドシートに記録 (J列)
         try:
             client = get_gsheet_client()
