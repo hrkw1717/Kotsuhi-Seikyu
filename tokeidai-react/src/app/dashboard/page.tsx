@@ -121,6 +121,9 @@ export default function Dashboard() {
     };
 
     const handleSend = async () => {
+        // スマホ表示などでステータス（上部）が見えるように最上部へスクロール
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
         setStatus("sending");
         try {
             const userJson = localStorage.getItem("user");
