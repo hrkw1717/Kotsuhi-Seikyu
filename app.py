@@ -660,7 +660,7 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
                 if success:
                     try:
                         self_body = (
-                            "以下の内容で、会社に交通費請求書を\n"
+                            "以下の内容で、会社に交通費請求用紙を\n"
                             "送りました。\n\n"
                             "------------------------------\n"
                             f"{email_body}"
