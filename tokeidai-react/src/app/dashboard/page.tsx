@@ -50,6 +50,8 @@ export default function Dashboard() {
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [status, setStatus] = useState("idle");
     const [userName, setUserName] = useState("ゲスト");
+    const [lastSent, setLastSent] = useState<string | null>(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     // バックエンド送付用の年月（パースして保持）
     const [year, month] = selectedDate.split("-");
@@ -92,6 +94,7 @@ export default function Dashboard() {
 
             if (data.status === "success") {
                 setPreviewData(data.data);
+                setLastSent(data.data.last_sent || null);
 
                 // PDFプレビュー画像を取得
                 const imgRes = await fetch(`${API_BASE_URL}/api/claims/render-preview`, {
@@ -139,6 +142,14 @@ export default function Dashboard() {
         } catch (err) {
             alert("サーバーに接続できません");
             setStatus("ready");
+        }
+    };
+
+    const handleSendClick = () => {
+        if (lastSent && selectedDate === dateOptions[0].value) {
+            setShowConfirmModal(true);
+        } else {
+            handleSend();
         }
     };
 
@@ -220,7 +231,11 @@ export default function Dashboard() {
                                         >
                                             {dateOptions.map(opt => (
                                                 <option key={opt.value} value={opt.value}>
-                                                    {opt.label} {opt.isLastMonth ? "(送信対象)" : "(閲覧のみ)"}
+                                                    {opt.label} {
+                                                        opt.isLastMonth
+                                                            ? (lastSent ? `(送信済み: ${lastSent})` : "(送信対象)")
+                                                            : "(閲覧のみ)"
+                                                    }
                                                 </option>
                                             ))}
                                         </select>
@@ -368,13 +383,55 @@ export default function Dashboard() {
                         className="fixed bottom-8 left-0 right-0 z-40 flex justify-center pointer-events-none"
                     >
                         <button
-                            onClick={handleSend}
+                            onClick={handleSendClick}
                             className="pointer-events-auto bg-emerald-600 text-white px-12 py-5 rounded-full font-bold text-lg shadow-2xl shadow-emerald-500/40 hover:bg-emerald-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 active:translate-y-0"
                         >
                             <Send size={20} />
                             この内容で会社へ送信する
                         </button>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Confirmation Modal */}
+            <AnimatePresence>
+                {showConfirmModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-100"
+                        >
+                            <div className="p-8 text-center">
+                                <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <Clock size={32} />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-800 mb-2">再度、送信をしますか？</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed mb-8">
+                                    この月の請求用紙は既に送信されています。<br />
+                                    修正後などで再度送信が必要な場合は「送信」を選択してください。
+                                </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => setShowConfirmModal(false)}
+                                        className="py-3 px-4 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
+                                    >
+                                        キャンセル
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowConfirmModal(false);
+                                            handleSend();
+                                        }}
+                                        className="py-3 px-4 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all"
+                                    >
+                                        送信
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 

@@ -372,7 +372,8 @@ async def get_preview(req: ClaimRequest):
             "body": f"全道警備センター　高橋　様\n時計台警備の {surname} です。お疲れ様です。 \n\n交通費請求用紙\n {req.year} 年 {req.month} 月分をお送りします。\n\n以上、どうぞよろしくお願い致します。",
             "days_count": len(dummy_days),
             "total_fare": len(dummy_days) * int(user_info["運賃"]),
-            "days": dummy_days
+            "days": dummy_days,
+            "last_sent": user_info.get("最終送信日", "")
         }
     }
 
@@ -407,14 +408,30 @@ async def send_claim(req: ClaimRequest):
         pdf_buffer, filename
     )
     
-    if success:
-        # 自分用にも送信（控え）
-        send_claim_email(
-            user_info["メアド"], f"【送信済】{subject}",
-            f"以下を会社へ送信しました：\n\n{body}",
-            f"時計台警備（{user_info['氏名']}）",
-            pdf_buffer, filename
-        )
+        # 最終送信日時をスプレッドシートに記録 (J列)
+        try:
+            client = get_gsheet_client()
+            sh = client.open_by_url(SPREADSHEET_URL)
+            worksheet = sh.worksheet("My-page")
+            
+            # ユーザー行を特定
+            data = worksheet.get_all_records()
+            df_curr = pd.DataFrame(data)
+            if req.userid in df_curr["ID"].values:
+                idx = df_curr[df_curr["ID"] == req.userid].index[0]
+                row_num = int(idx) + 2
+                
+                # ヘッダーから「最終送信日」列を探す
+                headers = worksheet.row_values(1)
+                if "最終送信日" in headers:
+                    col_num = headers.index("最終送信日") + 1
+                    jst = timezone(timedelta(hours=9))
+                    now_jst = datetime.now(jst)
+                    timestamp = now_jst.strftime("%m/%d %H:%M")
+                    worksheet.update_cell(row_num, col_num, timestamp)
+        except Exception as e:
+            print(f"Failed to update send history: {e}")
+
         return {"status": "success", "message": "送信完了しました"}
     else:
         return {"status": "error", "message": f"送信に失敗しました: {error_msg}"}
@@ -444,7 +461,11 @@ async def render_preview(req: ClaimRequest):
     
     import base64
     img_b64 = base64.b64encode(img_bytes).decode()
-    return {"status": "success", "image": f"data:image/png;base64,{img_b64}"}
+    return {
+        "status": "success", 
+        "image": f"data:image/png;base64,{img_b64}",
+        "last_sent": user_info.get("最終送信日", "")
+    }
 
 @app.post("/api/mypage/save")
 async def save_mypage(req: MyPageSaveRequest):
