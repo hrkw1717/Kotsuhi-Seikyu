@@ -322,7 +322,7 @@ export default function Dashboard() {
                         >
                             <button
                                 onClick={handleSend}
-                                className="pointer-events-auto bg-blue-600 text-white px-12 py-5 rounded-full font-bold text-lg shadow-2xl shadow-blue-400/40 hover:bg-blue-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 active:translate-y-0"
+                                className="pointer-events-auto bg-emerald-600 text-white px-12 py-5 rounded-full font-bold text-lg shadow-2xl shadow-emerald-500/40 hover:bg-emerald-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 active:translate-y-0"
                             >
                                 <Send size={20} />
                                 この内容で会社へ送信する
