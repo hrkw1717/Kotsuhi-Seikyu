@@ -34,6 +34,8 @@ export default function Dashboard() {
         new Date(jstNow.getFullYear(), jstNow.getMonth() - 1, 1), // 先月
         new Date(jstNow.getFullYear(), jstNow.getMonth(), 1),     // 今月
         new Date(jstNow.getFullYear(), jstNow.getMonth() + 1, 1), // 来月
+        new Date(jstNow.getFullYear(), jstNow.getMonth() + 2, 1), // 再来月
+        new Date(jstNow.getFullYear(), jstNow.getMonth() + 3, 1), // 3ヶ月後
     ].map(d => ({
         value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
         label: `${d.getFullYear()}年${d.getMonth() + 1}月`,
