@@ -241,7 +241,7 @@ export default function MyPage() {
                                                 className={`w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2.5 text-slate-900 font-bold focus:bg-white focus:border-blue-500 outline-none transition-all appearance-none ${user?.id !== "hori" ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
                                             >
                                                 <option value="sbs@sobun.net">sbs@sobun.net</option>
-                                                <option value="soumu@zendokeibi.com">soumu@zendokeibi.com</option>
+                                                <option value="soumu@zendokeibi.com">soumu@zendokeibi.com (総務)</option>
                                             </select>
                                             {user?.id !== "hori" && (
                                                 <p className="text-[10px] text-slate-400 font-bold ml-1">※ 送信先の設定は管理者のみ変更可能です</p>
