@@ -580,7 +580,7 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
         </style>
         <div style='text-align: center; padding: 10px 0 20px 0;'>
             <h3 style='margin-bottom: 25px; line-height: 1.6;'>
-                会社と自分に、交通費請求書を<br>
+                会社と自分に、交通費請求用紙を<br>
                 メール送信します。よろしいですか？
             </h3>
         </div>
@@ -651,7 +651,7 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
             with st.spinner("送信中..."):
                 success = send_email(
                     target_company_email, 
-                    f"交通費請求書_{year}年{month}月_{surname_label}",
+                    f"交通費請求用紙_{year}年{month}月_{surname_label}",
                     email_body,
                     from_name=from_display_name,
                     attachment_content=pdf_buffer.getvalue(),
@@ -665,7 +665,7 @@ def send_confirmation_dialog(user_info, year, month, pdf_buffer, filename_pdf, s
                             "------------------------------\n"
                             f"{email_body}"
                         )
-                        send_email(user_info["メアド"], "【送信済】交通費請求書", self_body, from_name=from_display_name, attachment_content=pdf_buffer.getvalue(), attachment_filename=filename_pdf)
+                        send_email(user_info["メアド"], "【送信済】交通費請求用紙", self_body, from_name=from_display_name, attachment_content=pdf_buffer.getvalue(), attachment_filename=filename_pdf)
                     except:
                         pass
                     st.session_state.send_success = True
@@ -677,7 +677,7 @@ def claim_send_page():
     render_global_nav()
     st.markdown("""
         <h1 style="text-align: center; line-height: 1.3;">
-            交通費請求書を<br>表示・送信
+            交通費請求用紙を<br>表示・送信
         </h1>
     """, unsafe_allow_html=True)
     
@@ -894,7 +894,7 @@ def claim_send_page():
     if not surname_label or (isinstance(surname_label, float) and pd.isna(surname_label)):
         surname_label = user_name.split()[0] if user_name else "請求書"
         
-    filename_pdf = f"交通費請求書_{year}_{month}_{surname_label}.pdf"
+    filename_pdf = f"交通費請求用紙_{year}_{month}_{surname_label}.pdf"
 
     id_to_name = {"yama": "山口", "saka": "坂下", "hori": "堀川"}
     kanji_name = id_to_name.get(st.session_state.user_id, "堀川")
