@@ -259,99 +259,66 @@ export default function Dashboard() {
                     {/* Right Column: Previews */}
                     <div className="lg:col-span-8 space-y-6">
                         {/* Message Preview */}
-                        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                <div className="flex items-center gap-2">
-                                    <Mail size={16} className="text-slate-400" />
-                                    <h3 className="text-sm font-bold text-slate-700 tracking-tight">送信メッセージのプレビュー</h3>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">Draft</span>
-                                </div>
-                            </div>
-                            <div className="p-6">
-                                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 font-mono text-sm text-slate-600 leading-relaxed shadow-inner">
-                                    <div className="flex justify-between border-b border-slate-200 pb-3 mb-6">
-                                        <span className="font-bold text-slate-800">To: {previewData?.recipient || "sbs@sobun.net"}</span>
-                                        <span className="text-slate-400">Subject: {previewData?.subject || `交通費請求用紙_${year}${month}_●●`}</span>
-                                    </div>
-                                    <p className="italic">
-                                        {previewData?.body ? (
-                                            previewData.body.split("\n").map((line: string, i: number) => (
-                                                <React.Fragment key={i}>{line}<br /></React.Fragment>
-                                            ))
-                                        ) : (
-                                            <>
-                                                全道警備センター　高橋　様<br />
-                                                時計台警備の {userName.split(" ")[0] || userName} です。お疲れ様です。<br /><br />
-                                                交通費請求用紙<br />
-                                                {year}年{month}月分をお送りします。<br /><br />
-                                                以上、どうぞよろしくお願い致します。
-                                            </>
-                                        )}
-                                    </p>
-                                </div>
+                    </div>
+
+                    {/* Visual Preview */}
+                    <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center bg-slate-50/50">
+                            <div className="flex items-center gap-2">
+                                <FileText size={16} className="text-slate-400" />
+                                <h3 className="text-sm font-bold text-slate-700 tracking-tight">シフト表と照合し内容を確認してください。</h3>
                             </div>
                         </div>
-
-                        {/* Visual Preview */}
-                        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-slate-100 flex items-center bg-slate-50/50">
-                                <div className="flex items-center gap-2">
-                                    <FileText size={16} className="text-slate-400" />
-                                    <h3 className="text-sm font-bold text-slate-700 tracking-tight">シフト表と照合し内容を確認してください。</h3>
-                                </div>
-                            </div>
-                            <div className="p-8 md:p-12 bg-slate-200/50 flex justify-center">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="bg-white w-full max-w-[600px] shadow-2xl rounded p-1 flex flex-col items-center overflow-hidden"
-                                >
-                                    {previewImage ? (
-                                        <img
-                                            src={previewImage}
-                                            alt="請求用紙プレビュー"
-                                            className="w-full h-auto object-contain"
-                                        />
-                                    ) : (
-                                        <div className="w-full aspect-[1/1.41] flex flex-col items-center justify-center space-y-4 py-20 bg-white">
-                                            <FileText className="w-12 h-12 text-slate-200" />
-                                            <p className="text-slate-400 text-sm font-medium italic">
-                                                No Preview Available
-                                            </p>
-                                        </div>
-                                    )}
-                                </motion.div>
-                            </div>
+                        <div className="p-8 md:p-12 bg-slate-200/50 flex justify-center">
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-white w-full max-w-[600px] shadow-2xl rounded p-1 flex flex-col items-center overflow-hidden"
+                            >
+                                {previewImage ? (
+                                    <img
+                                        src={previewImage}
+                                        alt="請求用紙プレビュー"
+                                        className="w-full h-auto object-contain"
+                                    />
+                                ) : (
+                                    <div className="w-full aspect-[1/1.41] flex flex-col items-center justify-center space-y-4 py-20 bg-white">
+                                        <FileText className="w-12 h-12 text-slate-200" />
+                                        <p className="text-slate-400 text-sm font-medium italic">
+                                            No Preview Available
+                                        </p>
+                                    </div>
+                                )}
+                            </motion.div>
                         </div>
                     </div>
                 </div>
-
-                {/* Floating Action Button */}
-                <AnimatePresence>
-                    {status === "ready" && selectedDate === dateOptions[0].value && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 50 }}
-                            className="fixed bottom-8 left-0 right-0 z-40 flex justify-center pointer-events-none"
-                        >
-                            <button
-                                onClick={handleSend}
-                                className="pointer-events-auto bg-emerald-600 text-white px-12 py-5 rounded-full font-bold text-lg shadow-2xl shadow-emerald-500/40 hover:bg-emerald-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 active:translate-y-0"
-                            >
-                                <Send size={20} />
-                                この内容で会社へ送信する
-                            </button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </main>
-
-            <footer className="mt-auto py-8 border-t border-slate-200 bg-white text-center">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">© 2026 TOKEIDAI KEIBI - Powerd by Advanced Agentic Technology</p>
-            </footer>
         </div>
+
+                {/* Floating Action Button */ }
+    <AnimatePresence>
+        {status === "ready" && selectedDate === dateOptions[0].value && (
+            <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                className="fixed bottom-8 left-0 right-0 z-40 flex justify-center pointer-events-none"
+            >
+                <button
+                    onClick={handleSend}
+                    className="pointer-events-auto bg-emerald-600 text-white px-12 py-5 rounded-full font-bold text-lg shadow-2xl shadow-emerald-500/40 hover:bg-emerald-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 active:translate-y-0"
+                >
+                    <Send size={20} />
+                    この内容で会社へ送信する
+                </button>
+            </motion.div>
+        )}
+    </AnimatePresence>
+            </main >
+
+        <footer className="mt-auto py-8 border-t border-slate-200 bg-white text-center">
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">© 2026 TOKEIDAI KEIBI - Powerd by Advanced Agentic Technology</p>
+        </footer>
+        </div >
     );
 }
