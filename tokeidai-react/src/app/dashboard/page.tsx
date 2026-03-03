@@ -146,7 +146,7 @@ export default function Dashboard() {
             {/* Main Content */}
             <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8">
                 <header className="mb-8">
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">交通費請求書の送付</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">交通費請求用紙の送付</h1>
                     <p className="text-slate-500 text-sm mt-1">対象年月を選択し、内容を確認してメールを送信してください。</p>
                 </header>
 
@@ -256,7 +256,7 @@ export default function Dashboard() {
                                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 font-mono text-sm text-slate-600 leading-relaxed shadow-inner">
                                     <div className="flex justify-between border-b border-slate-200 pb-3 mb-6">
                                         <span className="font-bold text-slate-800">To: {previewData?.recipient || "sbs@sobun.net"}</span>
-                                        <span className="text-slate-400">Subject: {previewData?.subject || `交通費請求書_${year}${month}_堀川勉`}</span>
+                                        <span className="text-slate-400">Subject: {previewData?.subject || `交通費請求用紙_${year}${month}_堀川勉`}</span>
                                     </div>
                                     <p className="italic">
                                         {previewData?.body ? (
@@ -267,7 +267,7 @@ export default function Dashboard() {
                                             <>
                                                 sbs@sobun.net 様<br /><br />
                                                 堀川勉 です。<br />
-                                                {year}年{month}月分の交通費請求書を送付いたします。<br />
+                                                {year}年{month}月分の交通費請求用紙を送付いたします。<br />
                                                 ご確認のほど、よろしくお願い申し上げます。
                                             </>
                                         )}
@@ -281,7 +281,7 @@ export default function Dashboard() {
                             <div className="px-6 py-4 border-b border-slate-100 flex items-center bg-slate-50/50">
                                 <div className="flex items-center gap-2">
                                     <FileText size={16} className="text-slate-400" />
-                                    <h3 className="text-sm font-bold text-slate-700 tracking-tight">請求書イメージ確認</h3>
+                                    <h3 className="text-sm font-bold text-slate-700 tracking-tight">請求用紙イメージ確認</h3>
                                 </div>
                             </div>
                             <div className="p-8 md:p-12 bg-slate-200/50 flex justify-center">
@@ -293,7 +293,7 @@ export default function Dashboard() {
                                     {previewImage ? (
                                         <img
                                             src={previewImage}
-                                            alt="請求書プレビュー"
+                                            alt="請求用紙プレビュー"
                                             className="w-full h-auto object-contain"
                                         />
                                     ) : (
