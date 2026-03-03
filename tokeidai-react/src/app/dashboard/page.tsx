@@ -265,7 +265,7 @@ export default function Dashboard() {
                                             ))
                                         ) : (
                                             <>
-                                                sbs@sobun.net 様<br /><br />
+                                                全道警備センター　高橋　様<br /><br />
                                                 時計台警備の ●●● です。<br />
                                                 {year}年{month}月分の交通費請求用紙を送付いたします。<br />
                                                 ご確認のほど、よろしくお願い申し上げます。
