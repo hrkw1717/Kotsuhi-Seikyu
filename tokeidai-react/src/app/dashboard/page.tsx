@@ -202,8 +202,8 @@ export default function Dashboard() {
             </nav>
 
             {/* Main Content */}
-            <main className="flex-1 max-w-7xl mx-auto w-full px-0 sm:px-4 md:px-8 py-4 md:py-8">
-                <header className="mb-8 px-4 sm:px-0">
+            <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8">
+                <header className="mb-8">
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">交通費請求用紙の送付</h1>
                     <p className="text-slate-500 text-sm mt-1">対象年月を選択し、内容を確認してメールを送信してください。</p>
                 </header>
@@ -211,7 +211,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
                     {/* Left Column: Controls */}
                     <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
-                        <div className="bg-white sm:rounded-3xl sm:shadow-sm sm:border sm:border-slate-200 overflow-hidden">
+                        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                             <div>
                                 <div className="p-4 sm:p-6 pb-2 sm:pb-3">
                                     <div className="flex items-center gap-2 mb-4">
@@ -267,7 +267,7 @@ export default function Dashboard() {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className={`p-5 sm:p-6 sm:rounded-3xl rounded-none shadow-lg border-y sm:border ${status === "success"
+                                    className={`p-5 sm:p-6 rounded-3xl shadow-lg border ${status === "success"
                                         ? "bg-green-600 border-green-500 text-white shadow-green-100"
                                         : "bg-blue-600 border-blue-500 text-white shadow-blue-100"
                                         }`}
