@@ -194,7 +194,7 @@ export default function Dashboard() {
                                         disabled={isLoading || status === "sending"}
                                         className="w-full bg-slate-900 text-white rounded-2xl py-4 font-bold shadow-lg shadow-slate-200 hover:bg-slate-800 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:translate-y-0 flex items-center justify-center gap-2"
                                     >
-                                        {isLoading ? <RefreshCw className="animate-spin" size={20} /> : "データを読み込む"}
+                                        {isLoading ? <RefreshCw className="animate-spin" size={20} /> : "交通費 請求用紙を作成"}
                                     </button>
                                 </div>
                             </div>
