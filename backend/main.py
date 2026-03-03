@@ -549,7 +549,7 @@ async def config_check():
 # シフト表 API
 # ============================================================
 
-SHIFT_STAFF_NAMES = ["山口", "坂下", "堀川"]
+SHIFT_STAFF_NAMES = ["山口", "堀川", "坂下"]
 
 class ShiftDayEntry(BaseModel):
     day: int
