@@ -287,7 +287,7 @@ export default function MyPage() {
 
                             <div className="flex flex-col md:flex-row gap-6">
                                 <div className="flex-1 space-y-2.5 focus-within:text-emerald-600 transition-colors">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">片道運賃 (税込)</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">往復運賃 (税込)</label>
                                     <div className="flex items-center gap-2">
                                         {isEditing ? (
                                             <div className="relative flex-1 flex items-center">

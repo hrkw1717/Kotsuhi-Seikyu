@@ -979,7 +979,7 @@ def mypage_page():
         
         email = st.text_input("メールアドレス", value=user_row.iloc[0]["メアド"])
         route = st.text_input("往復移動経路", value=user_row.iloc[0]["往復移動経路"])
-        fare = st.number_input("運賃", value=int(user_row.iloc[0]["運賃"]))
+        fare = st.number_input("往復運賃", value=int(user_row.iloc[0]["運賃"]))
         send_setting = st.radio("送信設定", options=["手動", "毎月1日に自動"], index=0 if user_row.iloc[0]["送信"] == "手動" else 1)
         
         # 会社メアド（送信先）: 堀川氏のみ変更可能
