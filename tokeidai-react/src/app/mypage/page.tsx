@@ -301,10 +301,9 @@ export default function MyPage() {
                                                 />
                                             </div>
                                         ) : (
-                                            <div className="flex items-center gap-1.5 ml-1">
-                                                <span className="font-black text-emerald-600/30 text-4xl">¥</span>
-                                                <p className="text-emerald-600 font-black text-4xl tracking-tight">
-                                                    {user.fare?.toLocaleString()}
+                                            <div className="bg-slate-50 rounded-2xl p-6 border-2 border-slate-100 w-full">
+                                                <p className="text-slate-900 font-bold text-lg leading-relaxed">
+                                                    ¥{user.fare?.toLocaleString()}
                                                 </p>
                                             </div>
                                         )}
