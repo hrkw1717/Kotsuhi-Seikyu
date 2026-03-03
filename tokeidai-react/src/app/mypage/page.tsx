@@ -14,10 +14,10 @@ import {
     Edit3,
     Save,
     X,
-    Loader2,
-    FileText
+    Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Header from "@/components/Header";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -110,48 +110,7 @@ export default function MyPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-            {/* Navigation */}
-            <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 rotate-3">
-                                <FileText className="text-white" size={20} />
-                            </div>
-                            <div>
-                                <h1 className="text-lg font-black text-slate-800 tracking-tighter leading-none">TOKEIDAI</h1>
-                                <p className="text-[10px] font-bold text-blue-600 tracking-[0.2em] leading-none mt-1">SMART CLAIM</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 sm:gap-6">
-                            <div className="flex items-center gap-2 sm:gap-3 bg-slate-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-slate-100">
-                                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                                    <User size={12} className="sm:w-[14px] sm:h-[14px]" />
-                                </div>
-                                <span className="text-xs sm:text-sm font-bold text-slate-700">{user?.name || "ユーザー"}<span className="hidden xs:inline sm:inline ml-1 text-slate-400 font-medium">様</span></span>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <Link
-                                    href="/dashboard"
-                                    className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all cursor-pointer"
-                                    title="ダッシュボードに戻る"
-                                >
-                                    <ArrowLeft size={22} />
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
-                                    title="ログアウト"
-                                >
-                                    <LogOut size={22} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <Header userName={user?.name || "ユーザー"} />
 
             <main className="flex-1 max-w-3xl mx-auto w-full p-4 md:p-8">
                 <header className="mb-8 flex justify-between items-end">
