@@ -354,11 +354,11 @@ export default function Dashboard() {
                                     <h3 className="text-sm font-bold text-slate-700 tracking-tight">シフト表と照合し内容を確認してください。</h3>
                                 </div>
                             </div>
-                            <div className="p-8 md:p-12 bg-slate-200/50 flex justify-center">
+                            <div className="flex justify-center">
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="bg-white w-full max-w-[600px] shadow-2xl rounded p-1 flex flex-col items-center overflow-hidden"
+                                    className="w-full flex flex-col items-center overflow-hidden"
                                 >
                                     {previewImage ? (
                                         <img
