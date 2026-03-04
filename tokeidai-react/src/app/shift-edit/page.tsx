@@ -328,11 +328,11 @@ export default function ShiftEditPage() {
                         onClick={handleValidate}
                         disabled={isSaving || isLoading}
                         whileTap={{ scale: 0.97 }}
-                        className="px-6 py-2.5 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-black text-sm rounded-xl shadow-lg hover:from-slate-800 hover:to-black transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+                        className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-sm rounded-xl shadow-lg shadow-blue-100 hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
                     >
                         {isSaving
                             ? <><Loader2 size={16} className="animate-spin" /> 保存中...</>
-                            : <><ShieldCheck size={16} /> 検査して保存</>
+                            : <><ShieldCheck size={16} /> 変更を保存</>
                         }
                     </motion.button>
                 </div>
