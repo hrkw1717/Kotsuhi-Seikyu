@@ -111,13 +111,17 @@ export default function ShiftEditPage() {
             setLastDay(data.last_day);
             setStaff(data.staff);
 
-            // 全スタッフ分の「出」を収集（複数人対応）
+            // 全スタッフ分の出勤状態を収集
             const init: Assignments = {};
             for (const [dayStr, staffMap] of Object.entries(data.data as Record<string, Record<string, string>>)) {
                 const day = Number(dayStr);
                 const names: string[] = [];
                 for (const [name, val] of Object.entries(staffMap)) {
-                    if (val === "出") names.push(name);
+                    if (val === "出") {
+                        names.push(name);
+                    } else if (val === "朝" || val === "夜") {
+                        names.push(`${name}(${val})`);
+                    }
                 }
                 if (names.length > 0) init[day] = names;
             }
@@ -147,26 +151,42 @@ export default function ShiftEditPage() {
         setAssignments(prev => {
             const current = prev[day] ?? [];
             const isSelected = current.includes(clickedName);
+            const isAsa = current.includes(`${clickedName}(朝)`) || (special && isSelected && current.find(n => n.startsWith(clickedName))?.includes("朝"));
+            const isYoru = current.includes(`${clickedName}(夜)`) || (special && isSelected && current.find(n => n.startsWith(clickedName))?.includes("夜"));
+
+            const next = { ...prev };
 
             if (special) {
-                // 三が日: 独立トグル（複数選択可）
-                const updated = isSelected
-                    ? current.filter(n => n !== clickedName)
-                    : [...current, clickedName];
-                const next = { ...prev };
+                // 三が日: ループトグル [- -> 朝 -> 夜 -> -]
+                // 内部的には "氏名(朝)", "氏名(夜)" という形式で保持するか、
+                // 単に "山口" が入っていれば「出（朝）」とみなす等の既存ロジックとの互換性を考慮
+                // ここではシンプルに "山口(朝)", "山口(夜)" という文字列を扱う設計にします
+
+                const currentVal = current.find(n => n.startsWith(clickedName));
+                let newVal: string | null = null;
+
+                if (!currentVal) {
+                    newVal = `${clickedName}(朝)`;
+                } else if (currentVal.includes("朝")) {
+                    newVal = `${clickedName}(夜)`;
+                } else {
+                    newVal = null; // 消去
+                }
+
+                const filtered = current.filter(n => !n.startsWith(clickedName));
+                const updated = newVal ? [...filtered, newVal] : filtered;
+
                 if (updated.length === 0) delete next[day];
                 else next[day] = updated;
-                return next;
             } else {
-                // 通常: 1日1名（同じ人→解除、別の人→差し替え）
-                const next = { ...prev };
+                // 通常: 1日1名トグル
                 if (isSelected) {
                     delete next[day];
                 } else {
                     next[day] = [clickedName];
                 }
-                return next;
             }
+            return next;
         });
     };
 
@@ -181,10 +201,17 @@ export default function ShiftEditPage() {
         setIsSaving(true);
         setSaveStatus(null);
         try {
-            const entries: { day: number; name: string }[] = [];
+            const entries: { day: number; name: string; value: string }[] = [];
             for (const [dayStr, names] of Object.entries(assignments)) {
-                for (const name of names) {
-                    entries.push({ day: Number(dayStr), name });
+                for (const nameWithAttr of names) {
+                    // "氏名(朝)" などの形式から分離
+                    if (nameWithAttr.includes("(") && nameWithAttr.includes(")")) {
+                        const name = nameWithAttr.split("(")[0];
+                        const val = nameWithAttr.split("(")[1].replace(")", "");
+                        entries.push({ day: Number(dayStr), name, value: val });
+                    } else {
+                        entries.push({ day: Number(dayStr), name: nameWithAttr, value: "出" });
+                    }
                 }
             }
             const res = await fetch(`${API_BASE_URL}/api/shift/${year}/${month}/save`, {
@@ -345,17 +372,28 @@ export default function ShiftEditPage() {
                                             {special && <span className="block text-[9px] text-amber-500 font-bold">2人可</span>}
                                         </div>
                                         {staff.map(name => {
-                                            const isAssigned = assignedNames.includes(name);
+                                            const entry = assignedNames.find(n => n.startsWith(name));
+                                            const isAsa = entry?.includes("朝");
+                                            const isYoru = entry?.includes("夜");
+                                            const isAssigned = !!entry && !isAsa && !isYoru;
+
+                                            // ボタンのラベルとスタイル
+                                            let label = "－";
+                                            let activeClass = "";
+                                            if (isAsa) { label = "朝"; activeClass = STAFF_SELECTED[name] || "bg-slate-500 text-white"; }
+                                            else if (isYoru) { label = "夜"; activeClass = "bg-slate-800 text-white border-slate-800 shadow-slate-200"; }
+                                            else if (isAssigned) { label = "出"; activeClass = STAFF_SELECTED[name] || "bg-slate-500 text-white"; }
+
                                             return (
                                                 <div key={name} className="px-2 py-1.5 flex justify-center">
                                                     <button
                                                         onClick={() => toggleStaff(day, name)}
-                                                        className={`w-full max-w-[80px] py-2 rounded-xl text-sm font-bold border transition-all ${isAssigned
-                                                                ? `${STAFF_SELECTED[name] || "bg-slate-500 text-white"} shadow-md`
-                                                                : "bg-slate-50 text-slate-300 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:text-slate-400"
+                                                        className={`w-full max-w-[80px] py-2 rounded-xl text-sm font-bold border transition-all ${entry
+                                                            ? `${activeClass} shadow-md`
+                                                            : "bg-slate-50 text-slate-300 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:text-slate-400"
                                                             }`}
                                                     >
-                                                        {isAssigned ? "出" : "－"}
+                                                        {label}
                                                     </button>
                                                 </div>
                                             );

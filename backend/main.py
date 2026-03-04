@@ -521,6 +521,7 @@ SHIFT_STAFF_NAMES = ["山口", "堀川", "坂下"]
 class ShiftDayEntry(BaseModel):
     day: int
     name: str  # 担当者名
+    value: str = "出"  # 入力値（出、朝、夜など）
 
 class ShiftSaveRequest(BaseModel):
     entries: List[ShiftDayEntry]
@@ -545,6 +546,7 @@ async def get_shift(year: int, month: int):
                 # 該当スタッフの行を探す
                 user_row = next((row for row in month_data if row.get("氏名") == name), None)
                 val = user_row.get(str(day)) if user_row else ""
+                # 文字列としてそのまま取得
                 result[day][name] = str(val).strip() if val else ""
 
         return {
@@ -598,10 +600,12 @@ async def save_shift(year: int, month: int, body: ShiftSaveRequest):
             staff_entries = [e for e in body.entries if e.name == staff_name]
             for entry in staff_entries:
                 day = entry.day
-                schedule[str(day)] = "出"
-                # 翌日「明」を自動セット（三が日以外）
+                val = entry.value if entry.value else "出"
+                schedule[str(day)] = val
+                
+                # 翌日「明」を自動セット（三が日以外、かつ通常の「出」の場合のみ）
                 is_new_year_special = (month == 1 and day in [1, 2, 3])
-                if not is_new_year_special and (day + 1) <= 31:
+                if not is_new_year_special and val == "出" and (day + 1) <= 31:
                     schedule[str(day + 1)] = "明"
 
             if row_num is not None:
