@@ -634,10 +634,70 @@ async def save_shift(year: int, month: int, body: ShiftSaveRequest):
             worksheet.append_rows(rows_to_append)
 
         return {"status": "success", "message": f"{year}年{month}月のシフトを保存しました"}
-
     except Exception as e:
         print(f"Shift save error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+class JokenSaveRequest(BaseModel):
+    userid: str
+    content: str
+
+@app.get("/api/joken")
+async def get_joken():
+    """スプレッドシートの「シフトの条件」タブから条件を取得"""
+    try:
+        client = get_gsheet_client()
+        sh = client.open_by_url(SPREADSHEET_URL)
+        worksheet = sh.worksheet("シフトの条件")
+        # A1セルに全内容が保存されている前提、または各行を結合
+        vals = worksheet.get_all_values()
+        if not vals:
+            return {"content": ""}
+        # 全ての行の1列目を結合して返す（改行コードで連結）
+        content = "\n".join([row[0] for row in vals if row])
+        return {"content": content}
+    except Exception as e:
+        print(f"Joken read error: {e}")
+        # タブが存在しない場合はファイルのフォールバックを試みる
+        path = find_file("joken.txt")
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return {"content": f.read()}
+        return {"content": "条件ファイルが見つかりません。"}
+
+@app.post("/api/joken")
+async def save_joken(req: JokenSaveRequest):
+    """スプレッドシートの「シフトの条件」タブに条件を保存"""
+    if req.userid != "hori":
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    try:
+        client = get_gsheet_client()
+        sh = client.open_by_url(SPREADSHEET_URL)
+        worksheet = sh.worksheet("シフトの条件")
+        
+        # 中身をクリアして新しい内容を書き込む
+        worksheet.clear()
+        
+        # 1行ずつリストにして一括更新 (改行で分割)
+        lines = [[line] for line in req.content.split("\n")]
+        worksheet.update("A1", lines)
+        
+        # 最終更新日時を B1 付近にメモ (オプション)
+        jst = timezone(timedelta(hours=9))
+        timestamp = datetime.now(jst).strftime("%Y/%m/%d %H:%M:%S")
+        worksheet.update("B1", [[f"Last Updated: {timestamp}"]])
+
+        return {"status": "success", "message": "条件をスプレッドシートに保存しました"}
+    except Exception as e:
+        print(f"Joken save error: {e}")
+        # エラー時はファイルにも書き込んでおく（バックアップ）
+        try:
+            path = find_file("joken.txt")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(req.content)
+        except: pass
+        raise HTTPException(status_code=500, detail=f"Save error: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

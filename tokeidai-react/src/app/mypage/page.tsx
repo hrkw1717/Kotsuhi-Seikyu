@@ -37,6 +37,11 @@ export default function MyPage() {
         password: ""
     });
 
+    // シフト作成条件 (joken.txt) 用
+    const [joken, setJoken] = useState("");
+    const [isJokenLoading, setIsJokenLoading] = useState(false);
+    const [isJokenSaving, setIsJokenSaving] = useState(false);
+
     useEffect(() => {
         const userJson = localStorage.getItem("user");
         if (userJson) {
@@ -50,10 +55,55 @@ export default function MyPage() {
                 fare: userData.fare || 0,
                 password: "" // パスワードは表示しない
             });
+
+            // 堀川さんの場合は条件ファイルを取得
+            if (userData.id === "hori") {
+                fetchJoken();
+            }
         } else {
             window.location.href = "/";
         }
     }, []);
+
+    const fetchJoken = async () => {
+        setIsJokenLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/api/joken`);
+            const data = await res.json();
+            if (res.ok) {
+                setJoken(data.content || "");
+            }
+        } catch (err) {
+            console.error("Failed to fetch joken:", err);
+        } finally {
+            setIsJokenLoading(false);
+        }
+    };
+
+    const handleJokenSave = async () => {
+        setIsJokenSaving(true);
+        try {
+            const res = await fetch(`${API_URL}/api/joken`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userid: user.id,
+                    content: joken
+                }),
+            });
+            const data = await res.json();
+            if (res.ok && data.status === "success") {
+                setMessage({ text: "シフト条件を保存しました！", type: "success" });
+                setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+            } else {
+                throw new Error(data.detail || "保存に失敗しました");
+            }
+        } catch (error: any) {
+            setMessage({ text: error.message, type: "error" });
+        } finally {
+            setIsJokenSaving(false);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -361,6 +411,80 @@ export default function MyPage() {
                         ) : null}
                     </AnimatePresence>
                 </form>
+
+                {/* 堀川様専用: シフト作成条件の編集セクション */}
+                {user.id === "hori" && (
+                    <motion.section
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mt-12 mb-12"
+                    >
+                        <div className="bg-white rounded-[2rem] shadow-lg shadow-slate-200/50 border border-slate-200 p-8 md:p-10">
+                            <h3 className="text-lg font-black text-slate-900 mb-8 flex items-center gap-3">
+                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                                    <Briefcase size={22} />
+                                </div>
+                                シフト作成時の条件 (joken.txt)
+                            </h3>
+
+                            <div className="space-y-6">
+                                <div className="space-y-2.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block ml-1">
+                                        現在の条件とルール
+                                    </label>
+                                    {isJokenLoading ? (
+                                        <div className="bg-slate-50 rounded-2xl p-10 flex flex-col items-center justify-center border-2 border-slate-100 border-dashed">
+                                            <Loader2 size={24} className="text-blue-500 animate-spin mb-2" />
+                                            <p className="text-xs font-bold text-slate-400">Loading conditions...</p>
+                                        </div>
+                                    ) : (
+                                        <div className="relative group">
+                                            <textarea
+                                                value={joken}
+                                                onChange={(e) => setJoken(e.target.value)}
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-slate-900 font-bold leading-relaxed focus:bg-white focus:border-indigo-500 outline-none transition-all min-h-[300px] shadow-inner shadow-slate-100"
+                                                placeholder="シフト作成のルールを入力してください..."
+                                            />
+                                            <div className="absolute top-4 right-4 text-slate-300 pointer-events-none group-focus-within:opacity-0 transition-opacity">
+                                                <Edit3 size={16} />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex justify-end">
+                                    <button
+                                        onClick={handleJokenSave}
+                                        disabled={isJokenSaving || isJokenLoading}
+                                        className="bg-indigo-600 text-white px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:scale-100"
+                                    >
+                                        {isJokenSaving ? (
+                                            <>
+                                                <Loader2 size={16} className="animate-spin" />
+                                                Saving...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Save size={16} />
+                                                条件を保存する
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+
+                                <div className="p-5 bg-indigo-50 rounded-2xl border-2 border-indigo-100 flex gap-4">
+                                    <div className="p-1.5 bg-white rounded-lg shadow-sm">
+                                        <ShieldCheck className="text-indigo-500" size={16} />
+                                    </div>
+                                    <p className="text-[11px] text-indigo-700 font-bold leading-relaxed">
+                                        この内容は、シフト精査プログラムの基本ルール（joken.txt）として保存されます。変更内容は即座に反映され、今後のシフトチェックに使用されます。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.section>
+                )}
             </main>
         </div>
     );
