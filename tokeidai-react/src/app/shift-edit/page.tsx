@@ -313,14 +313,28 @@ export default function ShiftEditPage() {
                     </button>
                 </div>
 
-                {/* Staff Legend */}
-                <div className="flex gap-3 mb-5 flex-wrap">
-                    {staff.map(name => (
-                        <div key={name} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-bold ${STAFF_LIGHT[name] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
-                            <span className={`w-2.5 h-2.5 rounded-full ${STAFF_COLORS[name] || "bg-slate-400"}`}></span>
-                            {name}
-                        </div>
-                    ))}
+                {/* Staff Legend & Save Button */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+                    <div className="flex gap-3 flex-wrap">
+                        {staff.map(name => (
+                            <div key={name} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-bold ${STAFF_LIGHT[name] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                                <span className={`w-2.5 h-2.5 rounded-full ${STAFF_COLORS[name] || "bg-slate-400"}`}></span>
+                                {name}
+                            </div>
+                        ))}
+                    </div>
+
+                    <motion.button
+                        onClick={handleValidate}
+                        disabled={isSaving || isLoading}
+                        whileTap={{ scale: 0.97 }}
+                        className="px-6 py-2.5 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-black text-sm rounded-xl shadow-lg hover:from-slate-800 hover:to-black transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+                    >
+                        {isSaving
+                            ? <><Loader2 size={16} className="animate-spin" /> 保存中...</>
+                            : <><ShieldCheck size={16} /> 検査して保存</>
+                        }
+                    </motion.button>
                 </div>
 
                 {/* Save Status */}
@@ -409,18 +423,6 @@ export default function ShiftEditPage() {
                     )}
                 </div>
 
-                {/* Validate Button */}
-                <motion.button
-                    onClick={handleValidate}
-                    disabled={isSaving || isLoading}
-                    whileTap={{ scale: 0.97 }}
-                    className="w-full py-4 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-black text-base rounded-2xl shadow-lg hover:from-slate-800 hover:to-black transition-all flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                    {isSaving
-                        ? <><Loader2 size={20} className="animate-spin" /> 保存中...</>
-                        : <><ShieldCheck size={20} /> 検査して保存</>
-                    }
-                </motion.button>
             </main>
         </div>
     );
