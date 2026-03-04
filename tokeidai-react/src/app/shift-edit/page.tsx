@@ -372,10 +372,14 @@ export default function ShiftEditPage() {
                                             {special && <span className="block text-[9px] text-amber-500 font-bold">2人可</span>}
                                         </div>
                                         {staff.map(name => {
-                                            const entry = assignedNames.find(n => n.startsWith(name));
-                                            const isAsa = entry?.includes("朝");
-                                            const isYoru = entry?.includes("夜");
-                                            const isAssigned = !!entry && !isAsa && !isYoru;
+                                            // 1月1〜3日の場合は "(朝)" や "(夜)" が付いている可能性がある。
+                                            // assignments には "氏名", "氏名(朝)", "氏名(夜)" のいずれかが入る。
+                                            const staffEntries = assignedNames.filter(n => n.startsWith(name));
+                                            const entry = staffEntries[0] || "";
+
+                                            const isAsa = entry.includes("(朝)");
+                                            const isYoru = entry.includes("(夜)");
+                                            const isAssigned = entry !== "" && !isAsa && !isYoru;
 
                                             // ボタンのラベルとスタイル
                                             let label = "－";
