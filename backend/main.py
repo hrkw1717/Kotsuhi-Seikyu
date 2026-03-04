@@ -576,45 +576,64 @@ async def save_shift(year: int, month: int, body: ShiftSaveRequest):
         worksheet = sh.worksheet("シフト表")
         
         # 全データをロード
-        all_data = worksheet.get_all_records()
-        headers = worksheet.row_values(1)
-        
-        # 更新対象（山口、堀川、坂下）ごとに処理
+        all_rows = worksheet.get_all_values()
+        if not all_rows:
+             raise HTTPException(status_code=500, detail="Sheet is empty")
+             
+        headers = all_rows[0]
+        cells_to_update = []
+        rows_to_append = []
+
+        # スタッフごとの行データを準備
         for staff_name in SHIFT_STAFF_NAMES:
-            # 該当する行を探す
-            row_idx = next((i for i, row in enumerate(all_data) 
-                          if int(row.get("Year", 0)) == year and int(row.get("Month", 0)) == month and row.get("氏名") == staff_name), None)
+            # 該当する行を探す (2行目以降から)
+            row_num = None
+            for i, row in enumerate(all_rows[1:], start=2):
+                if len(row) > 2 and row[0] == str(year) and row[1] == str(month) and row[2] == staff_name:
+                    row_num = i
+                    break
             
-            row_num = row_idx + 2 if row_idx is not None else len(all_data) + 2
-            
-            # 初期行データ（新規作成の場合）
-            if row_idx is None:
-                # Year と Month と 氏名 をセット
-                worksheet.update_cell(row_num, headers.index("Year") + 1, year)
-                worksheet.update_cell(row_num, headers.index("Month") + 1, month)
-                worksheet.update_cell(row_num, headers.index("氏名") + 1, staff_name)
-                # 一応 all_data に空の行を追加してインデックスがずれないようにする（ループ内なので慎重に）
-                all_data.append({"Year": year, "Month": month, "氏名": staff_name})
-
-            # そのスタッフの該当月の全日付セルを一旦クリア
-            for d in range(1, 32):
-                if str(d) in headers:
-                    worksheet.update_cell(row_num, headers.index(str(d)) + 1, "")
-
-            # 「出」の書き込み
+            # その月のスケジュールデータを作成 (1-31日分)
+            schedule = {str(d): "" for d in range(1, 32)}
             staff_entries = [e for e in body.entries if e.name == staff_name]
             for entry in staff_entries:
                 day = entry.day
-                if str(day) in headers:
-                    # 「出」を記入
-                    worksheet.update_cell(row_num, headers.index(str(day)) + 1, "出")
-                    
-                    # 翌日「明」を自動セット（三が日以外）
-                    is_new_year_special = (month == 1 and day in [1, 2, 3])
-                    if not is_new_year_special and (day + 1) <= 31 and str(day + 1) in headers:
-                        worksheet.update_cell(row_num, headers.index(str(day + 1)) + 1, "明")
+                schedule[str(day)] = "出"
+                # 翌日「明」を自動セット（三が日以外）
+                is_new_year_special = (month == 1 and day in [1, 2, 3])
+                if not is_new_year_special and (day + 1) <= 31:
+                    schedule[str(day + 1)] = "明"
 
-        return {"status": "success", "message": f"{year}年{month}月のシフトをスプレッドシートに保存しました"}
+            if row_num is not None:
+                # 既存行の更新 (列ごとに Cell オブジェクトを作成)
+                for d in range(1, 32):
+                    col_name = str(d)
+                    if col_name in headers:
+                        col_num = headers.index(col_name) + 1
+                        val = schedule[col_name]
+                        cells_to_update.append(gspread.Cell(row=row_num, col=col_num, value=val))
+            else:
+                # 新規行の追加用リスト作成
+                new_row = ["" for _ in headers]
+                # ヘッダー順にセット (Year, Month, 氏名 を想定)
+                if "Year" in headers: new_row[headers.index("Year")] = str(year)
+                if "Month" in headers: new_row[headers.index("Month")] = str(month)
+                if "氏名" in headers: new_row[headers.index("氏名")] = staff_name
+                
+                for d in range(1, 32):
+                    col_name = str(d)
+                    if col_name in headers:
+                        d_idx = headers.index(col_name)
+                        new_row[d_idx] = schedule[col_name]
+                rows_to_append.append(new_row)
+
+        # 一括書き込み実行 (API Quota 節約)
+        if cells_to_update:
+            worksheet.update_cells(cells_to_update)
+        if rows_to_append:
+            worksheet.append_rows(rows_to_append)
+
+        return {"status": "success", "message": f"{year}年{month}月のシフトを保存しました"}
 
     except Exception as e:
         print(f"Shift save error: {e}")
