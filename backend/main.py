@@ -43,6 +43,7 @@ SPREADSHEET_URL = os.getenv("SPREADSHEET_URL", "")
 SHARED_PASSWORD = os.getenv("SHARED_PASSWORD", "tokei")
 GAS_DEPLOY_URL = os.getenv("GAS_DEPLOY_URL", "")
 GAS_SUB_KEY = os.getenv("GAS_SUB_KEY", "tokeidai-secret-key-123")
+ID_TO_KANJI = {"yama": "山口", "saka": "坂下", "hori": "堀川"}
 
 # ファイルパス解決関数（本番・ローカル両対応）
 def find_file(filename):
@@ -328,9 +329,9 @@ async def get_preview(req: ClaimRequest):
     user_info = user_row.iloc[0]
     surname = user_info.get("苗字", user_info["氏名"].split()[0])
     
-    # 実際はシフト表Excelから取得するが、一旦ダミー
-    # TODO: load_shift_data の移植
-    dummy_days = [1, 5, 10, 15, 20] 
+    # 本物のシフトデータ取得
+    kanji_name = str(ID_TO_KANJI.get(req.userid, surname or ""))
+    working_days = load_shift_days(int(req.year), int(req.month), kanji_name)
     
     return {
         "status": "success",
@@ -338,9 +339,9 @@ async def get_preview(req: ClaimRequest):
             "recipient": user_info.get("会社メアド", COMPANY_EMAIL_DEFAULT),
             "subject": f"交通費請求用紙_{req.year}{req.month}_{surname}",
             "body": f"全道警備センター　高橋　様\n時計台警備の {surname} です。お疲れ様です。 \n\n交通費請求用紙\n {req.year} 年 {req.month} 月分をお送りします。\n\n以上、どうぞよろしくお願い致します。",
-            "days_count": len(dummy_days),
-            "total_fare": len(dummy_days) * int(user_info["運賃"]),
-            "days": dummy_days,
+            "days_count": len(working_days),
+            "total_fare": len(working_days) * int(user_info["運賃"]),
+            "days": working_days,
             "last_sent": user_info.get("最終送信日", "")
         }
     }
@@ -356,8 +357,7 @@ async def send_claim(req: ClaimRequest):
     surname = user_info.get("苗字", user_info["氏名"].split()[0])
     
     # 本物のシフトデータ取得
-    id_to_kanji = {"yama": "山口", "saka": "坂下", "hori": "堀川"}
-    kanji_name = id_to_kanji.get(req.userid, surname)
+    kanji_name = str(ID_TO_KANJI.get(req.userid, surname or ""))
     working_days = load_shift_days(int(req.year), int(req.month), kanji_name)
     
     pdf_buffer = generate_pdf_buffer(
@@ -420,8 +420,7 @@ async def render_preview(req: ClaimRequest):
         raise HTTPException(status_code=404, detail="User not found")
     
     user_info = user_row.iloc[0]
-    id_to_kanji = {"yama": "山口", "saka": "坂下", "hori": "堀川"}
-    kanji_name = id_to_kanji.get(req.userid, user_info["氏名"].split()[0])
+    kanji_name = str(ID_TO_KANJI.get(req.userid, str(user_info["氏名"]).split()[0]))
     working_days = load_shift_days(int(req.year), int(req.month), kanji_name)
     
     pdf_buffer = generate_pdf_buffer(
