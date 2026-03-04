@@ -314,11 +314,11 @@ export default function ShiftEditPage() {
                 </div>
 
                 {/* Staff Legend & Save Button */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
-                    <div className="flex gap-3 flex-wrap">
+                <div className="flex items-center justify-between gap-2 mb-5">
+                    <div className="flex gap-2 flex-wrap">
                         {staff.map(name => (
-                            <div key={name} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-bold ${STAFF_LIGHT[name] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
-                                <span className={`w-2.5 h-2.5 rounded-full ${STAFF_COLORS[name] || "bg-slate-400"}`}></span>
+                            <div key={name} className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[13px] font-bold ${STAFF_LIGHT[name] || "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                                <span className={`w-2 h-2 rounded-full ${STAFF_COLORS[name] || "bg-slate-400"}`}></span>
                                 {name}
                             </div>
                         ))}
@@ -328,7 +328,7 @@ export default function ShiftEditPage() {
                         onClick={handleValidate}
                         disabled={isSaving || isLoading}
                         whileTap={{ scale: 0.97 }}
-                        className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-sm rounded-xl shadow-lg shadow-blue-100 hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+                        className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-sm rounded-xl shadow-lg shadow-blue-100 hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
                     >
                         {isSaving
                             ? <><Loader2 size={16} className="animate-spin" /> 保存中...</>
