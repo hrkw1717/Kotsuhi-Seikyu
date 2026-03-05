@@ -61,7 +61,6 @@ def find_file(filename):
     print(f"Warning: File {filename} not found in any candidate paths.")
     return os.path.join(BASE_DIR, filename) # デフォルトは同階層
 
-SHIFT_PATH = find_file("シフト表時計台警備通年.xlsx")
 TEMPLATE_PATH = find_file("テンプレート.pdf")
 
 # React(Next.js)からのアクセスを許可
