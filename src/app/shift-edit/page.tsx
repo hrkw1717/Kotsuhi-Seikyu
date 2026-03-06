@@ -299,7 +299,7 @@ export default function ShiftEditPage() {
             <main className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-8">
                 <header className="mb-6">
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">シフト表編集</h1>
-                    <p className="text-slate-500 text-sm mt-1 font-medium">ボタンはタップする毎に「出」→「-」→「出」と切り替わります。正月三が日は「朝」「夜」。1月1〜3日は2人まで同日出勤可能です。</p>
+                    <p className="text-slate-500 text-sm mt-1 font-medium">ボタンはタップする毎に「出」→「-」→「出」と切り替わります。正月三が日は「朝」「夜」で、同日に2人まで出勤可能です。</p>
                 </header>
 
                 {/* Month Selector */}
